@@ -1,0 +1,44 @@
+.footer {
+    padding: 50px 20px;
+    background: #111;
+    color: white;
+  }
+  
+  .footer-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+  }
+  
+  .contact-info, .social-media, .newsletter {
+    text-align: center;
+  }
+  
+  .social-media a {
+    display: block;
+    color: white;
+    text-decoration: none;
+    margin: 5px 0;
+  }
+  
+  .social-media a:hover {
+    color: neonblue;
+  }
+  
+  .newsletter input {
+    padding: 10px;
+    margin-right: 10px;
+  }
+  
+  .newsletter button {
+    padding: 10px 20px;
+    background: neonblue;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .newsletter button:hover {
+    background: darkblue;
+  }
+  

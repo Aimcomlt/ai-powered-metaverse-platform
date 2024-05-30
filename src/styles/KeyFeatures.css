@@ -1,0 +1,30 @@
+.key-features {
+    padding: 50px 20px;
+    background: #111;
+    color: white;
+  }
+  
+  .key-features h2 {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  .features-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+  }
+  
+  .feature-card {
+    background: #222;
+    padding: 20px;
+    border-radius: 10px;
+    width: 250px;
+    text-align: center;
+  }
+  
+  .feature-card:hover {
+    border: 1px solid neonblue;
+  }
+  

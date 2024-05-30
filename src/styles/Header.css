@@ -1,0 +1,92 @@
+.header {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 200px;
+    height: 100%;
+    background-color: #111;
+    color: white;
+    padding: 20px;
+    transition: width 0.3s ease;
+  }
+  
+  .header.minimized {
+    width: 75px;
+  }
+  
+  .logo {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #0ff; /* Neon blue color */
+    text-shadow: 0 0 5px #0ff, 0 0 10px #0ff, 0 0 20px #0ff;
+  }
+  
+  .nav {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    overflow: hidden;
+    transition: opacity 0.3s ease;
+  }
+  
+  .header.minimized .nav {
+    opacity: 0;
+    pointer-events: none;
+  }
+  
+  .nav a {
+    color: white;
+    text-decoration: none;
+    padding: 10px 0;
+    transition: color 0.3s;
+  }
+  
+  .nav a:hover {
+    color: #0ff; /* Neon blue color */
+  }
+  
+  .toggle-button {
+    margin-left: auto;
+    padding: 10px;
+    background-color: #0ff;
+    color: #111;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .toggle-button:hover {
+    background-color: #0cc; /* Slightly darker neon blue */
+  }
+  
+  .header.minimized .logo {
+    font-size: 1em;
+    text-align: center;
+    width: 100%;
+  }
+  
+  
+  
+  /* Neon blue color */
+  @keyframes neonGlow {
+    0%,
+    100% {
+      border-color: #0ff; /* Cyan color */
+      box-shadow: 0 0 5px #0ff, 0 0 10px #0ff, 0 0 20px #0ff, 0 0 30px #0ff;
+    }
+    50% {
+      border-color: #0cc; /* Slightly darker cyan */
+      box-shadow: 0 0 10px #0cc, 0 0 20px #0cc, 0 0 30px #0cc, 0 0 40px #0cc;
+    }
+  }
+  
+  .header {
+    border: 2px solid #0ff; /* Cyan color */
+    animation: neonGlow 2s infinite alternate;
+  }
+  
+  

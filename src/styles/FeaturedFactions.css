@@ -1,0 +1,53 @@
+.featured-factions {
+    padding: 50px 20px;
+    background: #111;
+    color: white;
+    text-align: center;
+  }
+  
+  .featured-factions h2 {
+    font-size: 2.5em;
+    margin-bottom: 30px;
+  }
+  
+  .factions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+  }
+  
+  .faction-card {
+    background: #222222;
+    padding: 20px;
+    border-radius: 15px;
+    transition: transform 0.3s, box-shadow 0.3s;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.637);
+    color: white;
+    text-decoration: none;
+  }
+  
+  .faction-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 16px rgba(36, 132, 2, 0.619);
+  }
+  
+  .faction-logo {
+    width: 180px;
+    height: 180px;
+    object-fit: cover;
+    margin-bottom: 15px;
+    border-radius: 50%;
+    border: 2px solid neonblue;
+  }
+  
+  .faction-card h3 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+  }
+  
+  .faction-card p {
+    font-size: 1em;
+    color: #ccc;
+  }
+  

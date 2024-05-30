@@ -1,0 +1,30 @@
+.hero {
+    background: url('H:\Hardhat-Folder\Project-test\ai-powered-metaverse-pltf\public\images\tron-grid-background.webp') no-repeat center center/cover;
+    color: white;
+    padding: 100px 0;
+    text-align: center;
+  }
+  
+  .hero-content h1 {
+    font-size: 3em;
+    margin-bottom: 20px;
+  }
+  
+  .hero-content p {
+    font-size: 1.2em;
+    margin-bottom: 30px;
+  }
+  
+  .cta-button {
+    padding: 10px 20px;
+    font-size: 1em;
+    color: black;
+    background: neonblue;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .cta-button:hover {
+    background: darkblue;
+  }
+  

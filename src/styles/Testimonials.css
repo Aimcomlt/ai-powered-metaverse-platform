@@ -1,0 +1,31 @@
+.testimonials {
+    padding: 50px 20px;
+    background: #222;
+    color: white;
+  }
+  
+  .testimonials h2 {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  .testimonials-carousel {
+    display: flex;
+    overflow-x: scroll;
+    gap: 20px;
+    padding: 0 20px;
+  }
+  
+  .testimonial-card {
+    flex: 0 0 auto;
+    background: #333;
+    padding: 20px;
+    border-radius: 10px;
+    min-width: 200px;
+    text-align: center;
+  }
+  
+  .testimonial-card:hover {
+    border: 1px solid neonblue;
+  }
+  
