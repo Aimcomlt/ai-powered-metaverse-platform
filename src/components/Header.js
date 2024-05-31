@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import '../styles/Header.css';
 
 const Header = () => {
@@ -12,11 +13,11 @@ const Header = () => {
     <header className={`header ${isNavVisible ? '' : 'minimized'}`}>
       <div className="logo">Metaverse-Platform</div>
       <nav className="nav">
-        <a href="#home">Home</a>
-        <a href="#factions">Factions</a>
-        <a href="#projects">Projects</a>
-        <a href="#governance">Governance</a>
-        <a href="#contact">Contact</a>
+        <Link to="/">Home</Link>
+        <Link to="/submit">Submit Document</Link>
+        <Link to="/feedback">Feedback</Link>
+        <Link to="/governance">Governance</Link>
+        <Link to="/projects">Projects</Link>
       </nav>
       <button className="toggle-button" onClick={toggleNav}>
         {isNavVisible ? '<<' : '>>'}
@@ -26,3 +27,4 @@ const Header = () => {
 };
 
 export default Header;
+

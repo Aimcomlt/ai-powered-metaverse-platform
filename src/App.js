@@ -10,6 +10,11 @@ import AIArchitect from './pages/AIArchitect';
 import AICourse from './pages/AICourse'; 
 import IoTInnovator from './pages/IoTInnovator';
 import IoTCourse from './pages/IoTCourse';
+import TaskManager from './sections/TaskManager';
+import DocumentSubmission from './sections/DocumentSubmission';
+import Feedback from './sections/Feedback';
+import Governance from './sections/Governance';
+import ProjectManagement from './sections/ProjectManagement';
 import './App.css';
 
 const App = () => {
@@ -18,7 +23,7 @@ const App = () => {
       <div className="app">
         <Header />
         <Routes>
-        <Route path="/" element={<Home />} />
+          <Route path="/" element={<Home />} />
           <Route path="/quantum-quorist" element={<QuantumQuorist />} />
           <Route path="/quantum-quorist/course" element={<QuantumCourse />} />
           <Route path="/blockchain-battalion" element={<BlockchainBattalion />} />
@@ -27,6 +32,11 @@ const App = () => {
           <Route path="/ai-architect/course" element={<AICourse />} />
           <Route path="/iot-innovator" element={<IoTInnovator />} />
           <Route path="/iot-innovator/course" element={<IoTCourse />} />
+          <Route path="/tasks" element={<TaskManager />} />
+          <Route path="/submit" element={<DocumentSubmission />} />
+          <Route path="/feedback" element={<Feedback />} />
+          <Route path="/governance" element={<Governance />} />
+          <Route path="/projects" element={<ProjectManagement />} />
         </Routes>
       </div>
     </Router>

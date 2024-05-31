@@ -1,0 +1,85 @@
+.project-management {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .project-management h2 {
+    margin-bottom: 20px;
+  }
+  
+  .project-management form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .project-management form div {
+    margin-bottom: 10px;
+  }
+  
+  .project-management label {
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  
+  .project-management input,
+  .project-management textarea {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .project-management button {
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .project-management button:hover {
+    background-color: #0056b3;
+  }
+  
+  .projects-list {
+    margin-top: 20px;
+  }
+  
+  .projects-list h3 {
+    margin-bottom: 10px;
+  }
+  
+  .projects-list ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .projects-list li {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    background-color: #f9f9f9;
+  }
+  
+  .monitoring-data {
+    margin-top: 20px;
+  }
+  
+  .monitoring-data h3 {
+    margin-bottom: 10px;
+  }
+  
+  .monitoring-data ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .monitoring-data li {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    background-color: #f9f9f9;
+  }
+  

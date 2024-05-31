@@ -1,0 +1,47 @@
+.document-submission {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .document-submission h2 {
+    margin-bottom: 20px;
+  }
+  
+  .document-submission form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .document-submission form div {
+    margin-bottom: 10px;
+  }
+  
+  .document-submission label {
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  
+  .document-submission input,
+  .document-submission textarea {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .document-submission button {
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .document-submission button:disabled {
+    background-color: #cccccc;
+  }
+  
+  .document-submission button:hover {
+    background-color: #0056b3;
+  }
+  
