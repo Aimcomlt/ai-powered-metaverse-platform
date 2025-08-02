@@ -6,6 +6,8 @@ Features
 AI Agent Component: Reusable and intelligent.
 Decentralized Storage: Uses IPFS for model files.
 React Framework: Built with Create React App.
+Backend Service: Express server with WebSocket streams in `backend/`.
+Smart Contracts: Hardhat workspace with example contracts in `contracts/`.
 Installation
 Clone the repository:
 bash
@@ -25,6 +27,22 @@ bash
 Copy code
 npm start
 Open http://localhost:3000 in your browser to view the app.
+
+Backend
+Install dependencies and start the backend server:
+```bash
+cd backend
+npm install
+npm start
+```
+
+Contracts
+The `contracts/` folder contains a Hardhat workspace. Compile the contracts with:
+```bash
+cd contracts
+npm install
+npx hardhat compile
+```
 Scripts
 npm start: Runs the app in development mode.
 npm test: Launches the test runner.
