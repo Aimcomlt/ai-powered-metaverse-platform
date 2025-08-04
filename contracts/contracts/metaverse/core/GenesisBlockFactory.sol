@@ -8,6 +8,7 @@ import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/acce
 interface IMpNSRegistry {
     function ownerOf(string calldata name) external view returns (address);
     function nameToUri(string calldata name) external view returns (string memory);
+    function isFrozen(string calldata name) external view returns (bool);
 }
 
 /**
@@ -61,6 +62,8 @@ contract GenesisBlockFaction is Initializable, AccessControlUpgradeable, UUPSUpg
         require(owner == msg.sender, "Only name owner can deploy faction");
 
         string memory uri = mpns.nameToUri(name);
+
+        require(mpns.isFrozen(name), "Name must be frozen");
 
         factions[name] = Faction({
             creator: msg.sender,
