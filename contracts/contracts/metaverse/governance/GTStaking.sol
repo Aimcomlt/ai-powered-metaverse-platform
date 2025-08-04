@@ -60,6 +60,18 @@ contract GTStaking is Initializable, AccessControlUpgradeable, UUPSUpgradeable {
         return 1e18; // 1 * 1e18
     }
 
+    function isStaked(address user, uint256 tokenId) external view returns (bool) {
+        return staked[user][tokenId] > 0;
+    }
+
+    function unstake(address user, uint256 tokenId) external returns (bool) {
+        uint256 amount = staked[user][tokenId];
+        require(amount > 0, "no stake");
+        staked[user][tokenId] = 0;
+        gt.stakeTransferFrom(address(this), user, tokenId, amount, "");
+        return true;
+    }
+
     function _authorizeUpgrade(address newImplementation) internal override onlyRole(UPGRADER_ROLE) {}
 }
 

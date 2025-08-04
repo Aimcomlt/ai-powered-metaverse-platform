@@ -92,6 +92,15 @@ contract FunctionalToken is Initializable, ERC1155Upgradeable, AccessControlUpgr
         super.safeBatchTransferFrom(from, to, ids, amounts, data);
     }
 
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC1155Upgradeable, AccessControlUpgradeable)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
+    }
+
     function _authorizeUpgrade(address newImplementation) internal override onlyRole(UPGRADER_ROLE) {}
 }
 
