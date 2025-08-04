@@ -94,32 +94,4 @@ contract FunctionalToken is Initializable, ERC1155Upgradeable, AccessControlUpgr
 
     function _authorizeUpgrade(address newImplementation) internal override onlyRole(UPGRADER_ROLE) {}
 }
-        _mint(to, id, amount, data);
-    }
-
-    /**
-     * @notice Gas optimised batch reward minting. Mints the same token id and amount to multiple recipients.
-     */
-    function batchRewardMint(address[] calldata recipients, uint256 id, uint256 amount, bytes calldata data) external onlyRole(MINTER_ROLE) {
-        uint256 length = recipients.length;
-        for (uint256 i; i < length; ) {
-            _mint(recipients[i], id, amount, data);
-            unchecked { ++i; }
-        }
-    }
-
-    /**
-     * @notice Convenience function to fetch balances for multiple token ids.
-     */
-    function balancesOf(address account, uint256[] calldata ids) external view returns (uint256[] memory balances) {
-        uint256 length = ids.length;
-        balances = new uint256[](length);
-        for (uint256 i; i < length; ) {
-            balances[i] = balanceOf(account, ids[i]);
-            unchecked { ++i; }
-        }
-    }
-
-    function _authorizeUpgrade(address newImplementation) internal override onlyRole(UPGRADER_ROLE) {}
-}
 
