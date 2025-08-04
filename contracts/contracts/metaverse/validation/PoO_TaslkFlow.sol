@@ -66,7 +66,7 @@ contract PoO_TaskFlow is Initializable, UUPSUpgradeable, AccessControlUpgradeabl
         bool unstaked = gtStaking.unstake(user, tokenId);
         require(unstaked, "Unstake failed");
 
-        functionalToken.mint(user, ftId, ftAmount, "");
+        functionalToken.mint(user, ftId, ftAmount, bytes(""));
 
         rewardedTasks[taskId] = true;
 
