@@ -5,8 +5,11 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
-/// @title MpNSRegistry
-/// @notice Metaverse Naming Service — maps permanent name labels to updatable content URIs (e.g., IPFS)
+/**
+ * @title MpNSRegistry
+ * @notice A decentralized naming system for the metaverse that maps human-readable names
+ *         (immutable) to updatable content-addressed URIs (e.g., IPFS, Arweave).
+ */
 contract MpNSRegistry is Initializable, UUPSUpgradeable, AccessControlUpgradeable {
     bytes32 public constant REGISTRAR_ROLE = keccak256("REGISTRAR_ROLE");
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
@@ -14,16 +17,16 @@ contract MpNSRegistry is Initializable, UUPSUpgradeable, AccessControlUpgradeabl
     struct NameRecord {
         address owner;
         uint256 expiration;
-        string uri;
-        bool locked;
+        string uri; // IPFS or metadata pointer
+        bool frozen; // once true, name cannot be updated or transferred again
     }
 
     mapping(string => NameRecord) private _records;
 
-    event NameRegistered(string indexed name, address indexed owner, uint256 expiration);
-    event NameRenewed(string indexed name, uint256 expiration);
+    event NameRegistered(string indexed name, address indexed owner, uint256 expiration, string uri);
+    event URIUpdated(string indexed name, string oldUri, string newUri);
     event NameTransferred(string indexed name, address indexed oldOwner, address indexed newOwner);
-    event NameUriUpdated(string indexed name, string newUri);
+    event NameFrozen(string indexed name);
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -33,43 +36,57 @@ contract MpNSRegistry is Initializable, UUPSUpgradeable, AccessControlUpgradeabl
     function initialize() public initializer {
         __AccessControl_init();
         __UUPSUpgradeable_init();
-
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(REGISTRAR_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
     }
 
-    /// @notice Register a new name and URI
+    /**
+     * @notice Registers a new human-readable name with a hash-based URI.
+     * @dev Once registered, the name itself is immutable; only URI can be updated.
+     */
     function register(string calldata name, address owner, uint256 duration, string calldata uri) external onlyRole(REGISTRAR_ROLE) {
-        require(owner != address(0), "invalid owner");
-        NameRecord storage record = _records[name];
-        require(record.expiration < block.timestamp, "name not available");
+        require(owner != address(0), "Invalid owner");
+        require(bytes(name).length > 0, "Name required");
+        require(_records[name].owner == address(0) || _records[name].expiration < block.timestamp, "Name not available");
 
-        record.owner = owner;
-        record.expiration = block.timestamp + duration;
-        record.uri = uri;
-        record.locked = true; // once registered, name string is immutable
+        _records[name] = NameRecord({
+            owner: owner,
+            expiration: block.timestamp + duration,
+            uri: uri,
+            frozen: false
+        });
 
-        emit NameRegistered(name, owner, record.expiration);
+        emit NameRegistered(name, owner, block.timestamp + duration, uri);
     }
 
-    /// @notice Extend expiration for an existing name
-    function renew(string calldata name, uint256 duration) external onlyRole(REGISTRAR_ROLE) {
+    /**
+     * @notice Updates the URI associated with a name.
+     * @dev Can only be updated by the current owner while name is valid and unfrozen.
+     */
+    function updateURI(string calldata name, string calldata newUri) external {
         NameRecord storage record = _records[name];
-        require(record.owner != address(0), "name not registered");
+        require(record.owner == msg.sender, "Not name owner");
+        require(record.expiration >= block.timestamp, "Name expired");
+        require(!record.frozen, "Name is frozen");
 
-        uint256 base = record.expiration > block.timestamp ? record.expiration : block.timestamp;
-        record.expiration = base + duration;
+        string memory oldUri = record.uri;
+        record.uri = newUri;
 
-        emit NameRenewed(name, record.expiration);
+        emit URIUpdated(name, oldUri, newUri);
     }
 
-    /// @notice Transfer ownership of a registered name
+    /**
+     * @notice Transfers a name to another user.
+     * @dev Transfer is only possible if name is still active and not frozen.
+     */
     function transfer(string calldata name, address newOwner) external {
-        require(newOwner != address(0), "invalid owner");
+        require(newOwner != address(0), "Invalid owner");
+
         NameRecord storage record = _records[name];
-        require(record.expiration >= block.timestamp, "name expired");
-        require(record.owner == msg.sender, "not owner");
+        require(record.owner == msg.sender, "Not name owner");
+        require(record.expiration >= block.timestamp, "Name expired");
+        require(!record.frozen, "Name is frozen");
 
         address oldOwner = record.owner;
         record.owner = newOwner;
@@ -77,33 +94,44 @@ contract MpNSRegistry is Initializable, UUPSUpgradeable, AccessControlUpgradeabl
         emit NameTransferred(name, oldOwner, newOwner);
     }
 
-    /// @notice Update content URI (e.g. IPFS or app metadata)
-    function updateUri(string calldata name, string calldata newUri) external {
+    /**
+     * @notice Freezes a name so its ownership and metadata become permanent.
+     * @dev Useful for names assigned to deployed Genesis Blocks.
+     */
+    function freezeName(string calldata name) external {
         NameRecord storage record = _records[name];
-        require(record.owner == msg.sender, "not owner");
-        require(record.expiration >= block.timestamp, "name expired");
-        require(record.locked, "name must be locked");
+        require(record.owner == msg.sender, "Not name owner");
+        require(record.expiration >= block.timestamp, "Name expired");
+        require(!record.frozen, "Already frozen");
 
-        record.uri = newUri;
-
-        emit NameUriUpdated(name, newUri);
+        record.frozen = true;
+        emit NameFrozen(name);
     }
 
-    /// @notice Returns the wallet address of a name's current owner (or address(0) if expired)
+    // -----------------------
+    // 🔎 View Functions
+    // -----------------------
+
     function ownerOf(string calldata name) external view returns (address) {
         NameRecord storage record = _records[name];
-        return record.expiration >= block.timestamp ? record.owner : address(0);
+        if (record.expiration >= block.timestamp) {
+            return record.owner;
+        }
+        return address(0);
     }
 
-    /// @notice Returns the expiration timestamp of a name
     function expirationOf(string calldata name) external view returns (uint256) {
         return _records[name].expiration;
     }
 
-    /// @notice Get the current URI for a name (e.g. IPFS or metadata pointer)
     function nameToUri(string calldata name) external view returns (string memory) {
         return _records[name].uri;
     }
 
+    function isFrozen(string calldata name) external view returns (bool) {
+        return _records[name].frozen;
+    }
+
     function _authorizeUpgrade(address newImplementation) internal override onlyRole(UPGRADER_ROLE) {}
 }
+
