@@ -1,137 +1,129 @@
-````markdown
+```markdown
  ⚖️ HouseOfTheLaw.sol
 
- 🧭 What is this?
+ 💡 What is this?
 
-**HouseOfTheLaw** is the metaverse’s official reward and governance smart contract.
+`HouseOfTheLaw` is the governance & reward engine for your metaverse.
 
-It manages:
-- ✅ Distribution of **Governance Tokens (GT)** and **Functional Tokens (FT)** after validated tasks
-- ✅ Creation and voting on **governance proposals**
-- ✅ Optional execution of **on-chain actions** when a proposal passes
+It:
+- 🧠 **Rewards users** with Governance Tokens (GT) and Functional Tokens (FT) after valid contributions.
+- 🗳️ **Handles voting** on proposals with quadratic fairness.
+- 🛡️ **Protects proposal quality** by requiring AI assistant access before anyone can submit proposals.
 
-> Think of this as your *constitutional chamber* where tasks get rewarded and policy gets made.
+ 🚦 Key Concepts
 
- 🧩 Components It Connects To
+| Feature | Role |
+|--------|------|
+| `GT` | Reputation token (earned, staked, used to vote or access AI) |
+| `FT` | Utility token (used to interact with dApps or get benefits) |
+| `PoO` | Trusted system that verifies task completion |
+| `AI Console` | Only unlocked if user has staked GT and is cleared for interaction |
+| `Quadratic Voting` | The more you vote, the more it costs—prevents whales from dominating |
 
-| Contract | Role |
-|---------|------|
-| `ProofOfObservation` | Verifies user task completions |
-| `GovernanceToken` | ERC-1155 GT system (vote eligibility) |
-| `FunctionalToken` | ERC-1155 utility token (FT) minting |
-| `GenesisBlockFaction` (optional) | Can call into this contract for local governance |
-| `CrossFactionHub` (optional) | This can act as a sub-governance module |
+---
 
- 🎁 Task Rewards
+ 🔄 Lifecycle Overview
 
-When a user completes a **verified task**:
+```
 
-1. The `ProofOfObservation` contract calls `rewardFromPoO()`
-2. The user receives:
-   - **Governance Tokens (GT)** → used for voting power
-   - **Functional Tokens (FT)** → usable across the metaverse
+Task Completed → Verified by PoO
+↓
+GTs Issued → FTs Minted
+↓
+User Stakes GT → Opens AI Console
+↓
+User Creates Proposal (optional on-chain action)
+↓
+Other users vote (Quadratic Cost)
+↓
+Proposal Executed (if passed)
 
- 💡 Token Math
-
-- **`alpha`** (basis points): Controls how many FT tokens are minted per GT earned  
-  > e.g. `alpha = 10_000` means 1 FT per GT
-- **`reserveRatio`** (basis points): How much GT is retained to **back the FT economy**  
-  > e.g. `reserveRatio = 2000` means 20% GT is not converted into FT
-
-```solidity
-FT amount = (gtReward * alpha * (10000 - reserveRatio)) / 10000 / 10000
 ````
 
- 🗳️ Governance Proposals
+ 🔐 Role-Based Access
 
-Users can create **proposals** with:
+| Role | Description |
+|------|-------------|
+| `DEFAULT_ADMIN_ROLE` | Can configure trusted contracts |
+| `UPGRADER_ROLE` | Can upgrade this contract |
+| `PoO` (external) | Only this contract can trigger GT/FT rewards |
+| `AI Console` (external) | Must be open before a user can propose |
 
-* `description` → plain text explanation
-* `ipfsHash` → link to detailed metadata off-chain
-* `target` → (optional) contract address to execute logic
-* `data` → (optional) calldata to send to `target`
-* `eligibleGTId` → restrict voting to a certain GT token
+ 🧬 Proposal Structure
 
- ✅ Requirements to Create
+Each proposal includes:
+- `description`: What it's about
+- `ipfsHash`: Optional off-chain metadata or visuals
+- `target`: Smart contract to call when passed
+- `data`: Calldata for that contract
+- `eligibleGTId`: Only users holding this GT token can vote
 
-* You **must hold** the GT token ID tied to that proposal’s eligibility
+ 🧰 Core Functions
 
-  > Useful for faction-specific votes!
+ ✅ `rewardFromPoO(user, taskId, ftId, gtReward)`
+Issues GT to the user and mints FTs.
+- 🔐 Can only be called by the PoO contract
 
- 🧮 Voting Rules
+ 🧠 `createProposal(desc, ipfsHash, eligibleGTId, target, data)`
+Starts a new proposal.
+- 🚫 Requires AI Console to be open
+- ✅ Checks if proposer holds the GT token required for that faction
 
-Uses **quadratic voting**:
+ 🗳️ `vote(proposalId, votes)`
+Quadratic voting.
+- Cost = (newVotes² - oldVotes²)
+- You must hold the right GT ID
 
-* The more votes you cast, the **more it costs**
-* Cost formula:
+ 🚀 `executeProposal(proposalId)`
+- Calls external contract using stored `target` and `data`
+- Only succeeds if votes are in favor
+
+ 🛡️ Anti-Spam AI Gate
+
+> Users can **only create proposals** if they’ve opened the AI Assistant console.
+
+This ensures:
+- ❌ No random or harmful proposals
+- ✅ Pre-validation before publishing
+- 🤖 Option to incorporate GPT checks or curation layers
+
+ 📈 Emitted Events
+
+| Event | Description |
+|-------|-------------|
+| `TaskRewarded` | When a user completes a task and earns tokens |
+| `ProposalCreated` | When a valid proposal is published |
+| `Voted` | When someone casts quadratic votes |
+| `ProposalExecuted` | When a passed proposal is executed on-chain |
+
+ 🔗 External Contracts Required
+
+- `IAIAssistantGate` (to check console status)
+- `IGovernanceToken` (for GT balance eligibility)
+- `IFunctionalToken` (to mint FTs)
+- `PoO` (for trusted validation)
+
+ 🧱 Example Use Case
 
 ```solidity
-cost = newVotes² - previousVotes²
-```
+// From PoO contract
+HouseOfTheLaw(rewarder).rewardFromPoO(user, taskId, 1, 20);
 
-* Voting is **only allowed** if you hold the required `eligibleGTId`
+// From UI with console open
+house.createProposal(
+  "Launch new faction model",
+  "ipfs://Qm...",
+  1,
+  address(treasury),
+  abi.encodeWithSignature("allocateFunds(address,uint256)", alice, 500 ether)
+);
+````
 
- 🧠 Example
+ 📌 Summary
 
-| You cast... | You pay... |
-| ----------- | ---------- |
-| 1 vote      | 1 GT       |
-| 2 votes     | 4 GT       |
-| 3 votes     | 9 GT       |
+✅ Encourages quality contributions
+🧠 Incentivizes deep participation
+🧱 Enforces faction-specific governance
+🤖 Builds trust via AI-gated access
 
-Votes are deducted from your GT balance stored in `HouseOfTheLaw`.
-
- ⚙️ Proposal Execution
-
-If a proposal:
-
-* Has not already been executed
-* Has more than 0 votes
-* Has a valid `target` contract
-
-... then anyone can call `executeProposal()` to trigger the on-chain action.
-
- 🗂️ Key Events
-
-| Event              | What It Means                                        |
-| ------------------ | ---------------------------------------------------- |
-| `TaskRewarded`     | A user received GT + FT from PoO                     |
-| `ProposalCreated`  | A new governance proposal was submitted              |
-| `Voted`            | A user voted (and spent GT)                          |
-| `ProposalExecuted` | An on-chain action was triggered via passed proposal |
-
-> `Voted` and `ProposalExecuted` also include `eligibleGTId` for **faction-based analytics**.
-
- 🛡️ Roles
-
-| Role                 | What They Do                                  |
-| -------------------- | --------------------------------------------- |
-| `DEFAULT_ADMIN_ROLE` | Assigns PoO and manages contract config       |
-| `UPGRADER_ROLE`      | Can upgrade the contract logic via UUPS proxy |
-
- 🔮 Future Suggestions
-
-* ✅ Add GT **staking** before voting
-* ✅ Connect faction-specific `GenesisBlock` instances for scoped governance
-* ✅ Emit **off-chain metadata** to decentralized indexers (IPFS/Subgraph)
-* ✅ Snapshot GT balances across proposals
-
- 🧪 Example Flow
-
-```text
-1. Alice completes Task 42 → PoO validates → GT + FT minted to Alice
-2. Alice proposes to add a new AI model → `createProposal()` called
-3. Voters with GT ID 7 vote using quadratic logic
-4. Proposal passes → executes an upgrade on a model registry contract
-```
-
- 📚 Related Contracts
-
-* [`ProofOfObservation.sol`](../observation/PoO_TaskFlow.sol)
-* [`GovernanceToken.sol`](../tokens/GovernanceToken.sol)
-* [`FunctionalToken.sol`](../tokens/FunctionalToken.sol)
-* [`CrossFactionHub.sol`](../governance/CrossFactionHub.sol)
-
- 🏛️ *“The House of the Law ensures every voice echoes with value, and every vote pays its price.”*
-
-
+> It's the **governing temple** of your metaverse: fair, vetted, and intelligent.
