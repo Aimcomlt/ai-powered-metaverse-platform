@@ -19,6 +19,9 @@ contract GTStaking is Initializable, AccessControlUpgradeable, UUPSUpgradeable {
     GovernanceToken public gt;
     FunctionalToken public ft;
 
+    event Staked(address indexed user, uint256 indexed tokenId, uint256 amount);
+    event Unstaked(address indexed user, uint256 indexed tokenId, uint256 amount);
+
     struct TaskMetrics { uint256 demand; uint256 supply; }
     mapping(uint256 => TaskMetrics) public taskMetrics;
     mapping(address => mapping(uint256 => uint256)) public staked; // user => tokenId => amount
@@ -43,6 +46,7 @@ contract GTStaking is Initializable, AccessControlUpgradeable, UUPSUpgradeable {
     function stake(uint256 id, uint256 amount) external {
         gt.stakeTransferFrom(msg.sender, address(this), id, amount, "");
         staked[msg.sender][id] += amount;
+        emit Staked(msg.sender, id, amount);
     }
 
     function completeTask(uint256 id, uint256 amount, uint256 taskId) external {
@@ -65,10 +69,12 @@ contract GTStaking is Initializable, AccessControlUpgradeable, UUPSUpgradeable {
     }
 
     function unstake(address user, uint256 tokenId) external returns (bool) {
+        require(msg.sender == user, "unauthorized");
         uint256 amount = staked[user][tokenId];
         require(amount > 0, "no stake");
         staked[user][tokenId] = 0;
         gt.stakeTransferFrom(address(this), user, tokenId, amount, "");
+        emit Unstaked(user, tokenId, amount);
         return true;
     }
 
