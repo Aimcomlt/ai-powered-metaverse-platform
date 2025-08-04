@@ -5,24 +5,76 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
-/// @notice Placeholder for PoO validation logic.
+interface IHouseOfTheLaw {
+    function validateTask(address user, uint256 taskId, uint256 ftId, uint256 gtReward) external;
+}
+
+/**
+ * @title ProofOfObservation
+ * @notice Verifies that a user has truly completed a task and then rewards them via HouseOfTheLaw.
+ */
 contract ProofOfObservation is Initializable, UUPSUpgradeable, AccessControlUpgradeable {
     bytes32 public constant VALIDATOR_ROLE = keccak256("VALIDATOR_ROLE");
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
+
+    IHouseOfTheLaw public houseOfTheLaw;
+
+    struct TaskSubmission {
+        address user;
+        uint256 taskId;
+        string proof; // IPFS hash or other off-chain reference
+        bool validated;
+    }
+
+    mapping(uint256 => TaskSubmission) public taskSubmissions; // taskId → submission
+    mapping(address => uint256[]) public userTasks;
+
+    event TaskSubmitted(address indexed user, uint256 indexed taskId, string proof);
+    event TaskValidated(address indexed validator, address indexed user, uint256 taskId, uint256 gtReward);
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
     }
 
-    function initialize() public initializer {
+    function initialize(address houseOfTheLawAddress) public initializer {
         __AccessControl_init();
         __UUPSUpgradeable_init();
+
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(VALIDATOR_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
+
+        houseOfTheLaw = IHouseOfTheLaw(houseOfTheLawAddress);
+    }
+
+    function submitTask(uint256 taskId, string calldata proof) external {
+        require(taskSubmissions[taskId].user == address(0), "Task already submitted");
+
+        taskSubmissions[taskId] = TaskSubmission({
+            user: msg.sender,
+            taskId: taskId,
+            proof: proof,
+            validated: false
+        });
+
+        userTasks[msg.sender].push(taskId);
+
+        emit TaskSubmitted(msg.sender, taskId, proof);
+    }
+
+    function validateTask(uint256 taskId, uint256 ftId, uint256 gtReward) external onlyRole(VALIDATOR_ROLE) {
+        TaskSubmission storage submission = taskSubmissions[taskId];
+        require(!submission.validated, "Already validated");
+        require(submission.user != address(0), "Task not found");
+
+        submission.validated = true;
+
+        // Trigger reward via HouseOfTheLaw
+        houseOfTheLaw.validateTask(submission.user, taskId, ftId, gtReward);
+
+        emit TaskValidated(msg.sender, submission.user, taskId, gtReward);
     }
 
     function _authorizeUpgrade(address newImplementation) internal override onlyRole(UPGRADER_ROLE) {}
 }
-
