@@ -19,9 +19,12 @@ contract HouseOfTheLaw is Initializable, AccessControlUpgradeable, UUPSUpgradeab
     struct Proposal {
         address proposer;
         string description;
+        string ipfsHash;        // Off-chain metadata pointer
+        address target;         // Contract to call on execution
+        bytes data;             // Calldata to execute
         uint256 voteTally;
         bool executed;
-        uint256 eligibleGTId;    // optional: only users with this GT ID can vote
+        uint256 eligibleGTId;   // Only voters with this GT ID are eligible
     }
 
     IFunctionalToken public functionalToken;
@@ -31,9 +34,125 @@ contract HouseOfTheLaw is Initializable, AccessControlUpgradeable, UUPSUpgradeab
     mapping(address => uint256) public governanceBalance;
     uint256 public totalGT;
 
-    /// @notice Alpha controls FT mint scaling. 10_000 = 1.0x FT per GT.
     uint256 public alpha;
+    uint256 public reserveRatio;
 
+    uint256 public proposalCount;
+    mapping(uint256 => Proposal) public proposals;
+    mapping(uint256 => mapping(address => uint256)) public votesCast;
+
+    event TaskRewarded(address indexed user, uint256 indexed taskId, uint256 ftId, uint256 ftAmount, uint256 gtReward);
+    event ProposalCreated(uint256 indexed proposalId, address indexed proposer, string ipfsHash);
+    event ProposalExecuted(uint256 indexed proposalId);
+    event Voted(uint256 indexed proposalId, address indexed voter, uint256 votes, uint256 cost, uint256 indexed gtId);
+
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initialize(
+        address functionalToken_,
+        address governanceToken_,
+        uint256 alphaBps_,
+        uint256 reserveRatioBps_
+    ) public initializer {
+        __AccessControl_init();
+        __UUPSUpgradeable_init();
+
+        require(reserveRatioBps_ <= 10_000, "reserve too high");
+
+        functionalToken = IFunctionalToken(functionalToken_);
+        governanceToken = IGovernanceToken(governanceToken_);
+        alpha = alphaBps_;
+        reserveRatio = reserveRatioBps_;
+
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(UPGRADER_ROLE, msg.sender);
+    }
+
+    function setProofOfObservation(address poO) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        proofOfObservation = poO;
+    }
+
+    modifier onlyPoO() {
+        require(msg.sender == proofOfObservation, "Caller is not PoO contract");
+        _;
+    }
+
+    function rewardFromPoO(
+        address user,
+        uint256 taskId,
+        uint256 ftId,
+        uint256 gtReward
+    ) external onlyPoO {
+        governanceBalance[user] += gtReward;
+        totalGT += gtReward;
+
+        uint256 ftAmount = (gtReward * alpha * (10_000 - reserveRatio)) / 10_000 / 10_000;
+        functionalToken.mint(user, ftId, ftAmount, "");
+
+        emit TaskRewarded(user, taskId, ftId, ftAmount, gtReward);
+    }
+
+    /// @notice Creates a proposal with on-chain logic and metadata.
+    function createProposal(
+        string calldata description,
+        string calldata ipfsHash,
+        uint256 eligibleGTId,
+        address target,
+        bytes calldata data
+    ) external returns (uint256 proposalId) {
+        require(governanceToken.balanceOf(msg.sender, eligibleGTId) > 0, "Must hold GT");
+
+        proposalId = ++proposalCount;
+        proposals[proposalId] = Proposal({
+            proposer: msg.sender,
+            description: description,
+            ipfsHash: ipfsHash,
+            target: target,
+            data: data,
+            voteTally: 0,
+            executed: false,
+            eligibleGTId: eligibleGTId
+        });
+
+        emit ProposalCreated(proposalId, msg.sender, ipfsHash);
+    }
+
+    function vote(uint256 proposalId, uint256 votes) external {
+        Proposal storage p = proposals[proposalId];
+        require(bytes(p.description).length != 0, "invalid proposal");
+        require(!p.executed, "already executed");
+
+        require(governanceToken.balanceOf(msg.sender, p.eligibleGTId) > 0, "Not eligible GT holder");
+
+        uint256 newVotes = votesCast[proposalId][msg.sender] + votes;
+        uint256 cost = newVotes * newVotes - votesCast[proposalId][msg.sender] * votesCast[proposalId][msg.sender];
+        require(governanceBalance[msg.sender] >= cost, "insufficient GT");
+
+        governanceBalance[msg.sender] -= cost;
+        votesCast[proposalId][msg.sender] = newVotes;
+        p.voteTally += votes;
+
+        emit Voted(proposalId, msg.sender, votes, cost, p.eligibleGTId);
+    }
+
+    /// @notice Executes proposal on the provided target using calldata.
+    function executeProposal(uint256 proposalId) external {
+        Proposal storage p = proposals[proposalId];
+        require(!p.executed, "Already executed");
+        require(p.voteTally > 0, "Not passed");
+        require(p.target != address(0), "No target set");
+
+        (bool success, ) = p.target.call(p.data);
+        require(success, "Call failed");
+
+        p.executed = true;
+        emit ProposalExecuted(proposalId);
+    }
+
+    function _authorizeUpgrade(address newImplementation) internal override onlyRole(UPGRADER_ROLE) {}
+}
     /// @notice Reserve ratio (in basis points) reduces FT mint output to support GT economy.
     /// For example, 2_000 = 20% GT backing retained.
     uint256 public reserveRatio;
@@ -131,13 +250,19 @@ contract HouseOfTheLaw is Initializable, AccessControlUpgradeable, UUPSUpgradeab
     }
 
     function executeProposal(uint256 proposalId) external {
-        Proposal storage p = proposals[proposalId];
-        require(!p.executed, "Already executed");
-        require(p.voteTally > 0, "Not passed");
+    Proposal storage p = proposals[proposalId];
+    require(!p.executed, "Already executed");
+    require(p.voteTally > 0, "Not passed");
+    require(p.target != address(0), "No target set");
 
-        p.executed = true;
-        emit ProposalExecuted(proposalId);
-    }
+    (bool success, ) = p.target.call(p.data);
+    require(success, "Call failed");
+
+    p.executed = true;
+
+    emit ProposalExecuted(proposalId, msg.sender, p.target, p.eligibleGTId);
+}
+
 
     function _authorizeUpgrade(address newImplementation) internal override onlyRole(UPGRADER_ROLE) {}
 }
