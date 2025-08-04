@@ -32,6 +32,8 @@ contract GovernanceToken is Initializable, ERC1155Upgradeable, AccessControlUpgr
         string proofURI
     );
 
+    event StakingRoleGranted(address indexed stakingContract);
+
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
@@ -45,7 +47,9 @@ contract GovernanceToken is Initializable, ERC1155Upgradeable, AccessControlUpgr
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(MINTER_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
+        require(stakingContract != address(0), "invalid staking contract");
         _grantRole(STAKING_CONTRACT_ROLE, stakingContract);
+        emit StakingRoleGranted(stakingContract);
     }
 
     /// @notice Mint a soulbound Governance Token to a user with metadata
