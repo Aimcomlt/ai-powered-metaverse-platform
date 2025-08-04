@@ -5,35 +5,142 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
-/// @notice Placeholder for cross-faction governance hub.
+interface IGovernanceToken {
+    function balanceOf(address account, uint256 tokenId) external view returns (uint256);
+}
+
+interface IProofOfObservation {
+    function isValidated(address proposer) external view returns (bool);
+}
+
+/// @notice Cross-faction governance coordinator and proposal executor.
 contract CrossFactionHub is Initializable, UUPSUpgradeable, AccessControlUpgradeable {
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
+    bytes32 public constant DEFAULT_VOTER_ROLE = keccak256("DEFAULT_VOTER_ROLE");
 
-    /// @notice Information about a governance proposal.
     struct Proposal {
-        address proposer; // creator of the proposal
-        address target; // contract to call when executing
-        bytes data; // calldata for execution
-        uint256 forVotes; // votes in favor
-        uint256 againstVotes; // votes against
-        bool executed; // whether the proposal has been executed
+        address proposer;
+        address target;
+        bytes data;
+        string title;
+        string faction;
+        uint256 forVotes;
+        uint256 againstVotes;
+        bool executed;
     }
 
-    /// @dev incremental identifier for proposals
     uint256 public proposalCount;
 
-    /// @dev mapping of proposal id to proposal data
     mapping(uint256 => Proposal) private _proposals;
-
-    /// @dev tracks whether an address has voted on a given proposal
     mapping(uint256 => mapping(address => bool)) private _hasVoted;
 
-    event ProposalCreated(uint256 indexed id, address indexed proposer, address indexed target, bytes data);
+    mapping(string => address) public registeredFactions;
+
+    IGovernanceToken public governanceToken;
+    IProofOfObservation public proofOfObservation;
+    uint256 public votingTokenId;
+
+    event FactionRegistered(string indexed faction, address indexed by);
+    event ProposalCreated(uint256 indexed id, address indexed proposer, string title);
     event VoteCast(uint256 indexed id, address indexed voter, bool support, uint256 weight);
     event ProposalExecuted(uint256 indexed id, address indexed executor);
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
+        _disableInitializers();
+    }
+
+    function initialize(address governanceToken_, address poO_, uint256 tokenIdForVoting) public initializer {
+        __AccessControl_init();
+        __UUPSUpgradeable_init();
+
+        governanceToken = IGovernanceToken(governanceToken_);
+        proofOfObservation = IProofOfObservation(poO_);
+        votingTokenId = tokenIdForVoting;
+
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(UPGRADER_ROLE, msg.sender);
+        _grantRole(DEFAULT_VOTER_ROLE, msg.sender); // initial voter setup
+    }
+
+    /// -------------------------
+    /// ✅ Faction Registration
+    /// -------------------------
+    function registerFaction(string calldata factionName) external {
+        require(registeredFactions[factionName] == address(0), "Already registered");
+        registeredFactions[factionName] = msg.sender;
+        emit FactionRegistered(factionName, msg.sender);
+    }
+
+    /// -------------------------
+    /// 🧠 Proposal Creation
+    /// -------------------------
+    function createProposal(
+        string calldata factionName,
+        string calldata title,
+        address target,
+        bytes calldata data
+    ) external returns (uint256 proposalId) {
+        require(registeredFactions[factionName] == msg.sender, "Not authorized faction");
+        require(proofOfObservation.isValidated(msg.sender), "Proposer not validated");
+
+        proposalId = proposalCount++;
+        Proposal storage p = _proposals[proposalId];
+        p.proposer = msg.sender;
+        p.title = title;
+        p.faction = factionName;
+        p.target = target;
+        p.data = data;
+
+        emit ProposalCreated(proposalId, msg.sender, title);
+    }
+
+    /// -------------------------
+    /// 📥 Voting
+    /// -------------------------
+    function vote(uint256 proposalId, bool support) external onlyRole(DEFAULT_VOTER_ROLE) {
+        Proposal storage p = _proposals[proposalId];
+        require(!p.executed, "Already executed");
+        require(!_hasVoted[proposalId][msg.sender], "Already voted");
+
+        uint256 weight = governanceToken.balanceOf(msg.sender, votingTokenId);
+        require(weight > 0, "No voting power");
+
+        _hasVoted[proposalId][msg.sender] = true;
+
+        if (support) {
+            p.forVotes += weight;
+        } else {
+            p.againstVotes += weight;
+        }
+
+        emit VoteCast(proposalId, msg.sender, support, weight);
+    }
+
+    /// -------------------------
+    /// 🔓 Execution
+    /// -------------------------
+    function executeProposal(uint256 proposalId) external {
+        Proposal storage p = _proposals[proposalId];
+        require(!p.executed, "Already executed");
+        require(p.forVotes > p.againstVotes, "Not passed");
+
+        p.executed = true;
+        (bool success, ) = p.target.call(p.data);
+        require(success, "Call failed");
+
+        emit ProposalExecuted(proposalId, msg.sender);
+    }
+
+    /// -------------------------
+    /// 🧾 View
+    /// -------------------------
+    function getProposal(uint256 proposalId) external view returns (Proposal memory) {
+        return _proposals[proposalId];
+    }
+
+    function _authorizeUpgrade(address newImplementation) internal override onlyRole(UPGRADER_ROLE) {}
+}
         _disableInitializers();
     }
 
