@@ -31,6 +31,7 @@ contract GTStaking is Initializable, AccessControlUpgradeable, UUPSUpgradeable {
         __UUPSUpgradeable_init();
         gt = GovernanceToken(gt_);
         ft = FunctionalToken(ft_);
+        require(gt.hasRole(gt.STAKING_CONTRACT_ROLE(), address(this)), "missing staking role");
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
     }
