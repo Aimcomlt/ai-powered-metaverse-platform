@@ -6,16 +6,30 @@ import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/acce
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-/**
- * @title GovernanceToken
- * @notice ERC-1155 soulbound token representing faction and contribution level.
- *         Tokens are non-transferable except via the staking contract which
- *         must be granted the STAKING_ROLE.
- */
 contract GovernanceToken is Initializable, ERC1155Upgradeable, AccessControlUpgradeable, UUPSUpgradeable {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
-    bytes32 public constant STAKING_ROLE = keccak256("STAKING_ROLE");
+
+    struct GTMetadata {
+        uint256 factionId;
+        uint256 level;
+        uint256 taskId;
+        string proofURI; // IPFS or metadata link
+    }
+
+    mapping(uint256 => GTMetadata) public metadataByTokenId;
+    mapping(address => uint256[]) public userGTs;
+
+    uint256 private _tokenIdCounter;
+
+    event GTMinted(
+        address indexed to,
+        uint256 indexed tokenId,
+        uint256 factionId,
+        uint256 level,
+        uint256 taskId,
+        string proofURI
+    );
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -32,44 +46,29 @@ contract GovernanceToken is Initializable, ERC1155Upgradeable, AccessControlUpgr
         _grantRole(UPGRADER_ROLE, msg.sender);
     }
 
-    /**
-     * @notice Mint governance tokens bound to an address.
-     */
-    function mint(address to, uint256 id, uint256 amount, bytes calldata data) external onlyRole(MINTER_ROLE) {
-        _mint(to, id, amount, data);
-    }
-
-    /**
-     * @dev Transfer helper callable only by a contract with STAKING_ROLE.
-     */
-    function stakeTransferFrom(
-        address from,
+    /// @notice Mint a soulbound Governance Token to a user with metadata
+    function mintGT(
         address to,
-        uint256 id,
-        uint256 amount,
-        bytes calldata data
-    ) external onlyRole(STAKING_ROLE) {
-        _safeTransferFrom(from, to, id, amount, data);
+        uint256 factionId,
+        uint256 level,
+        uint256 taskId,
+        string calldata proofURI
+    ) external onlyRole(MINTER_ROLE) returns (uint256 tokenId) {
+        tokenId = ++_tokenIdCounter;
+
+        _mint(to, tokenId, 1, "");
+        metadataByTokenId[tokenId] = GTMetadata(factionId, level, taskId, proofURI);
+        userGTs[to].push(tokenId);
+
+        emit GTMinted(to, tokenId, factionId, level, taskId, proofURI);
     }
 
-    /// Soulbound behaviour --------------------------------------------------
-    function safeTransferFrom(
-        address,
-        address,
-        uint256,
-        uint256,
-        bytes memory
-    ) public pure override {
+    // ❌ Disable transferability (soulbound enforcement)
+    function safeTransferFrom(address, address, uint256, uint256, bytes memory) public pure override {
         revert("GTs are soulbound");
     }
 
-    function safeBatchTransferFrom(
-        address,
-        address,
-        uint256[] memory,
-        uint256[] memory,
-        bytes memory
-    ) public pure override {
+    function safeBatchTransferFrom(address, address, uint256[] memory, uint256[] memory, bytes memory) public pure override {
         revert("GTs are soulbound");
     }
 
@@ -77,6 +76,14 @@ contract GovernanceToken is Initializable, ERC1155Upgradeable, AccessControlUpgr
         revert("GTs are soulbound");
     }
 
+    function isApprovedForAll(address, address) public pure override returns (bool) {
+        return false;
+    }
+
+    /// @notice View all GT token IDs owned by a user
+    function getUserGTs(address user) external view returns (uint256[] memory) {
+        return userGTs[user];
+    }
+
     function _authorizeUpgrade(address newImplementation) internal override onlyRole(UPGRADER_ROLE) {}
 }
-
