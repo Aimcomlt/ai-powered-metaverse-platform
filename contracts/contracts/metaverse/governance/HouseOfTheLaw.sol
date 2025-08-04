@@ -30,7 +30,10 @@ contract HouseOfTheLaw is Initializable, AccessControlUpgradeable, UUPSUpgradeab
     mapping(address => uint256) public governanceBalance;
     uint256 public totalGT;
 
-    // Parameters for FT minting based on GT supply (in basis points)
+    // Parameters for FT minting (basis points):
+    // - `alpha` scales functional token (FT) rewards relative to the GT reward.
+    //   e.g. alpha = 5_000 means 0.5 FT per GT distributed.
+    // - `reserveRatio` retains a portion of GT to back the FT economy.
     uint256 public alpha;
     uint256 public reserveRatio;
 
@@ -74,7 +77,11 @@ contract HouseOfTheLaw is Initializable, AccessControlUpgradeable, UUPSUpgradeab
     }
 
     /**
-     * @notice Called only by ProofOfObservation after task validation
+     * @notice Called only by ProofOfObservation after task validation.
+     *         Issues governance tokens (GT) to the user and mints
+     *         functional tokens (FT) according to the reward economics.
+     *         The FT amount is a fraction of the GT reward and is
+     *         reduced by `reserveRatio` to keep GT backing.
      */
     function validateTask(
         address user,
@@ -86,8 +93,10 @@ contract HouseOfTheLaw is Initializable, AccessControlUpgradeable, UUPSUpgradeab
         governanceBalance[user] += gtReward;
         totalGT += gtReward;
 
-        // Compute FT mint amount
-        uint256 ftAmount = (totalGT * alpha * (10_000 - reserveRatio)) / 10_000 / 10_000;
+        // Compute FT mint amount. FT rewards are proportional to the GT
+        // reward for this task and are scaled by `alpha`. A portion
+        // defined by `reserveRatio` remains in GT to support the FT economy.
+        uint256 ftAmount = (gtReward * alpha * (10_000 - reserveRatio)) / 10_000 / 10_000;
         functionalToken.mint(user, ftId, ftAmount, bytes(""));
 
         emit TaskValidated(user, taskId, ftId, ftAmount, gtReward);
