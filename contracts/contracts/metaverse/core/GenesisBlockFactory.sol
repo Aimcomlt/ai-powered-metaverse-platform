@@ -10,36 +10,39 @@ interface IMpNSRegistry {
     function nameToUri(string calldata name) external view returns (string memory);
 }
 
-/// @notice Interface of deployed GenesisBlockFaction contracts
-interface IGenesisBlockFaction {
-    function initialize(address mpnsAddress) external;
-    function createFaction(string calldata name) external;
-}
-
-/// @title GenesisBlockFactory
-/// @notice Deploys and tracks GenesisBlockFaction contracts linked to MpNS descriptive labels.
-contract GenesisBlockFactory is Initializable, AccessControlUpgradeable, UUPSUpgradeable {
+/**
+ * @title GenesisBlockFaction
+ * @notice Deploys a faction-specific governance container based on a locked MpNS name.
+ *         It pulls the associated URI to define context or resources.
+ */
+contract GenesisBlockFaction is Initializable, AccessControlUpgradeable, UUPSUpgradeable {
     bytes32 public constant DEPLOYER_ROLE = keccak256("DEPLOYER_ROLE");
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
 
+    struct Faction {
+        address creator;
+        string name;
+        string uri; // fetched from MpNSRegistry at time of creation
+        uint256 timestamp;
+    }
+
+    mapping(string => Faction) public factions;
+    string[] public allFactions;
+
     IMpNSRegistry public mpns;
-    address public factionImplementation;
 
-    mapping(string => address) public factionsByName;
-    address[] public allFactions;
+    event FactionCreated(string indexed name, address indexed creator, string uri, uint256 timestamp);
 
-    event FactionDeployed(string indexed name, address indexed deployer, address factionAddress);
-
+    /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
     }
 
-    function initialize(address mpnsAddress, address factionImpl) public initializer {
+    function initialize(address mpnsAddress) public initializer {
         __AccessControl_init();
         __UUPSUpgradeable_init();
 
         mpns = IMpNSRegistry(mpnsAddress);
-        factionImplementation = factionImpl;
 
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(DEPLOYER_ROLE, msg.sender);
@@ -47,42 +50,32 @@ contract GenesisBlockFactory is Initializable, AccessControlUpgradeable, UUPSUpg
     }
 
     /**
-     * @notice Deploys a new GenesisBlockFaction tied to an MpNS-registered name.
-     * @param name The descriptive name registered in MpNS
+     * @notice Deploy a new faction using a pre-registered MpNS name.
+     * @param name The locked, descriptive MpNS name (must already be registered)
      */
-    function deployFaction(string calldata name) external onlyRole(DEPLOYER_ROLE) {
-        require(factionsByName[name] == address(0), "Faction already exists");
+    function createFaction(string calldata name) external onlyRole(DEPLOYER_ROLE) {
+        require(factions[name].timestamp == 0, "Faction already exists");
 
         address owner = mpns.ownerOf(name);
-        require(owner == msg.sender, "Must own name in MpNS");
+        require(owner != address(0), "Name not registered or expired");
+        require(owner == msg.sender, "Only name owner can deploy faction");
 
-        // deploy new GenesisBlockFaction using minimal proxy
-        address clone = _deployMinimalProxy(factionImplementation);
-        IGenesisBlockFaction(clone).initialize(address(mpns));
-        IGenesisBlockFaction(clone).createFaction(name);
+        string memory uri = mpns.nameToUri(name);
 
-        factionsByName[name] = clone;
-        allFactions.push(clone);
+        factions[name] = Faction({
+            creator: msg.sender,
+            name: name,
+            uri: uri,
+            timestamp: block.timestamp
+        });
 
-        emit FactionDeployed(name, msg.sender, clone);
+        allFactions.push(name);
+
+        emit FactionCreated(name, msg.sender, uri, block.timestamp);
     }
 
-    /// @notice Lists all deployed faction contracts
-    function getAllFactions() external view returns (address[] memory) {
+    function getAllFactions() external view returns (string[] memory) {
         return allFactions;
-    }
-
-    /// @dev Minimal proxy creation (EIP-1167)
-    function _deployMinimalProxy(address logic) internal returns (address proxy) {
-        bytes20 targetBytes = bytes20(logic);
-        assembly {
-            let clone := mload(0x40)
-            mstore(clone, 0x3d602d80600a3d3981f3)
-            mstore(add(clone, 0x14), shl(0x60, targetBytes))
-            mstore(add(clone, 0x28), 0x5af43d82803e903d91602b57fd5bf3)
-            proxy := create(0, clone, 0x37)
-        }
-        require(proxy != address(0), "Create failed");
     }
 
     function _authorizeUpgrade(address newImplementation) internal override onlyRole(UPGRADER_ROLE) {}
