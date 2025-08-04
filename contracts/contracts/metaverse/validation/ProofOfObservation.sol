@@ -26,7 +26,7 @@ contract ProofOfObservation is Initializable, UUPSUpgradeable, AccessControlUpgr
         bool validated;
     }
 
-    mapping(uint256 => TaskSubmission) public taskSubmissions; // taskId → submission
+    mapping(address => mapping(uint256 => TaskSubmission)) public taskSubmissions; // user -> (taskId → submission)
     mapping(address => uint256[]) public userTasks;
 
     event TaskSubmitted(address indexed user, uint256 indexed taskId, string proof);
@@ -49,9 +49,9 @@ contract ProofOfObservation is Initializable, UUPSUpgradeable, AccessControlUpgr
     }
 
     function submitTask(uint256 taskId, string calldata proof) external {
-        require(taskSubmissions[taskId].user == address(0), "Task already submitted");
+        require(taskSubmissions[msg.sender][taskId].user == address(0), "Task already submitted");
 
-        taskSubmissions[taskId] = TaskSubmission({
+        taskSubmissions[msg.sender][taskId] = TaskSubmission({
             user: msg.sender,
             taskId: taskId,
             proof: proof,
@@ -63,8 +63,8 @@ contract ProofOfObservation is Initializable, UUPSUpgradeable, AccessControlUpgr
         emit TaskSubmitted(msg.sender, taskId, proof);
     }
 
-    function validateTask(uint256 taskId, uint256 ftId, uint256 gtReward) external onlyRole(VALIDATOR_ROLE) {
-        TaskSubmission storage submission = taskSubmissions[taskId];
+    function validateTask(address user, uint256 taskId, uint256 ftId, uint256 gtReward) external onlyRole(VALIDATOR_ROLE) {
+        TaskSubmission storage submission = taskSubmissions[user][taskId];
         require(!submission.validated, "Already validated");
         require(submission.user != address(0), "Task not found");
 
