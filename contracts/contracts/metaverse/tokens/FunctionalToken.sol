@@ -8,12 +8,15 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
 
 /**
  * @title FunctionalToken
- * @notice ERC-1155 token for both fungible utility tokens and non-fungible educational milestones.
- *         Utilises UUPS upgradeability and role based access control.
+ * @notice ERC-1155 token for fungible utility rewards (FTs). Only tokens with ID >= 10000 are transferable.
  */
 contract FunctionalToken is Initializable, ERC1155Upgradeable, AccessControlUpgradeable, UUPSUpgradeable {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
+
+    uint256 public constant FT_START_ID = 10_000;
+
+    event FunctionalTokenMinted(address indexed to, uint256 id, uint256 amount, string purpose);
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -31,9 +34,66 @@ contract FunctionalToken is Initializable, ERC1155Upgradeable, AccessControlUpgr
     }
 
     /**
-     * @notice Mint a single token type to an address.
+     * @notice Mint a single FT token.
      */
     function mint(address to, uint256 id, uint256 amount, bytes calldata data) external onlyRole(MINTER_ROLE) {
+        require(id >= FT_START_ID, "ID reserved or invalid for FT");
+        _mint(to, id, amount, data);
+    }
+
+    /**
+     * @notice Mint with an explanation (e.g. "task:ai_101").
+     */
+    function mintWithPurpose(
+        address to,
+        uint256 id,
+        uint256 amount,
+        bytes calldata data,
+        string calldata purpose
+    ) external onlyRole(MINTER_ROLE) {
+        require(id >= FT_START_ID, "ID reserved or invalid for FT");
+        _mint(to, id, amount, data);
+        emit FunctionalTokenMinted(to, id, amount, purpose);
+    }
+
+    /**
+     * @notice Gas-optimized batch reward minting.
+     */
+    function batchRewardMint(address[] calldata recipients, uint256 id, uint256 amount, bytes calldata data) external onlyRole(MINTER_ROLE) {
+        require(id >= FT_START_ID, "ID reserved or invalid for FT");
+        for (uint256 i; i < recipients.length; ) {
+            _mint(recipients[i], id, amount, data);
+            unchecked { ++i; }
+        }
+    }
+
+    /**
+     * @notice Get multiple balances.
+     */
+    function balancesOf(address account, uint256[] calldata ids) external view returns (uint256[] memory balances) {
+        balances = new uint256[](ids.length);
+        for (uint256 i; i < ids.length; ) {
+            balances[i] = balanceOf(account, ids[i]);
+            unchecked { ++i; }
+        }
+    }
+
+    // Protect against accidental GT minting by disallowing any transfer of low-range IDs
+    function safeTransferFrom(address from, address to, uint256 id, uint256 amount, bytes memory data) public virtual override {
+        require(id >= FT_START_ID, "Soulbound or reserved token");
+        super.safeTransferFrom(from, to, id, amount, data);
+    }
+
+    function safeBatchTransferFrom(address from, address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data) public virtual override {
+        for (uint256 i; i < ids.length; ) {
+            require(ids[i] >= FT_START_ID, "Soulbound or reserved token");
+            unchecked { ++i; }
+        }
+        super.safeBatchTransferFrom(from, to, ids, amounts, data);
+    }
+
+    function _authorizeUpgrade(address newImplementation) internal override onlyRole(UPGRADER_ROLE) {}
+}
         _mint(to, id, amount, data);
     }
 
