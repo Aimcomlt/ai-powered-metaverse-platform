@@ -2,6 +2,9 @@
   "name": "contracts",
   "version": "1.0.0",
   "private": true,
+  "dependencies": {
+    "@openzeppelin/contracts-upgradeable": "^5.0.1"
+  },
   "scripts": {
     "build": "hardhat compile",
     "deploy": "hardhat run scripts/deploy.ts",
