@@ -88,7 +88,7 @@ contract HouseOfTheLaw is Initializable, AccessControlUpgradeable, UUPSUpgradeab
 
         // Compute FT mint amount
         uint256 ftAmount = (totalGT * alpha * (10_000 - reserveRatio)) / 10_000 / 10_000;
-        functionalToken.mint(user, ftId, ftAmount, "");
+        functionalToken.mint(user, ftId, ftAmount, bytes(""));
 
         emit TaskValidated(user, taskId, ftId, ftAmount, gtReward);
     }
