@@ -9,6 +9,7 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
 contract GovernanceToken is Initializable, ERC1155Upgradeable, AccessControlUpgradeable, UUPSUpgradeable {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
+    bytes32 public constant STAKING_CONTRACT_ROLE = keccak256("STAKING_CONTRACT_ROLE");
 
     struct GTMetadata {
         uint256 factionId;
@@ -36,7 +37,7 @@ contract GovernanceToken is Initializable, ERC1155Upgradeable, AccessControlUpgr
         _disableInitializers();
     }
 
-    function initialize(string memory uri_) public initializer {
+    function initialize(string memory uri_, address stakingContract) public initializer {
         __ERC1155_init(uri_);
         __AccessControl_init();
         __UUPSUpgradeable_init();
@@ -44,6 +45,7 @@ contract GovernanceToken is Initializable, ERC1155Upgradeable, AccessControlUpgr
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(MINTER_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
+        _grantRole(STAKING_CONTRACT_ROLE, stakingContract);
     }
 
     /// @notice Mint a soulbound Governance Token to a user with metadata
@@ -61,6 +63,16 @@ contract GovernanceToken is Initializable, ERC1155Upgradeable, AccessControlUpgr
         userGTs[to].push(tokenId);
 
         emit GTMinted(to, tokenId, factionId, level, taskId, proofURI);
+    }
+
+    function stakeTransferFrom(
+        address from,
+        address to,
+        uint256 id,
+        uint256 amount,
+        bytes calldata data
+    ) external onlyRole(STAKING_CONTRACT_ROLE) {
+        _safeTransferFrom(from, to, id, amount, data);
     }
 
     // ❌ Disable transferability (soulbound enforcement)
