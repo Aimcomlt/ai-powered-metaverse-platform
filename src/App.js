@@ -15,6 +15,7 @@ import DocumentSubmission from './sections/DocumentSubmission';
 import Feedback from './sections/Feedback';
 import Governance from './sections/Governance';
 import ProjectManagement from './sections/ProjectManagement';
+import TaskBuilder from './sections/TaskBuilder';
 import './App.css';
 
 const App = () => {
@@ -36,6 +37,7 @@ const App = () => {
           <Route path="/submit" element={<DocumentSubmission />} />
           <Route path="/feedback" element={<Feedback />} />
           <Route path="/governance" element={<Governance />} />
+          <Route path="/task-builder" element={<TaskBuilder />} />
           <Route path="/projects" element={<ProjectManagement />} />
         </Routes>
       </div>
