@@ -140,4 +140,8 @@ contract CrossFactionHub is Initializable, UUPSUpgradeable, AccessControlUpgrade
     }
 
     function _authorizeUpgrade(address newImplementation) internal override onlyRole(UPGRADER_ROLE) {}
+
+    /// @dev Reserve storage space to allow layout changes in the future.
+    /// New variables must be appended at the end and the gap size adjusted if used.
+    uint256[50] private __gap;
 }
