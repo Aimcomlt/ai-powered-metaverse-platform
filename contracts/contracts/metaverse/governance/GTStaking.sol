@@ -30,6 +30,12 @@ contract GTStaking is Initializable, AccessControlUpgradeable, UUPSUpgradeable {
 
     event Staked(address indexed user, uint256 indexed tokenId, uint256 amount);
     event Unstaked(address indexed user, uint256 indexed tokenId, uint256 amount);
+    event TaskCompleted(
+        address indexed user,
+        uint256 indexed tokenId,
+        uint256 indexed taskId,
+        uint256 ftReward
+    );
 
     struct TaskMetrics { uint256 demand; uint256 supply; }
     mapping(uint256 => TaskMetrics) public taskMetrics;
@@ -68,6 +74,7 @@ contract GTStaking is Initializable, AccessControlUpgradeable, UUPSUpgradeable {
         uint256 rewardAmount = calculateReward(taskId) * amount / 1e18;
         ft.mint(msg.sender, id, rewardAmount, "");
         totalFtMinted += rewardAmount;
+        emit TaskCompleted(msg.sender, id, taskId, rewardAmount);
     }
 
     function calculateReward(uint256 taskId) public view returns (uint256) {
