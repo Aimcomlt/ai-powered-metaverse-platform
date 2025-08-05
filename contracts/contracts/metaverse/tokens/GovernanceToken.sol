@@ -39,7 +39,7 @@ contract GovernanceToken is Initializable, ERC1155Upgradeable, AccessControlUpgr
         _disableInitializers();
     }
 
-    function initialize(string memory uri_, address stakingContract) public initializer {
+    function initialize(string memory uri_) public initializer {
         __ERC1155_init(uri_);
         __AccessControl_init();
         __UUPSUpgradeable_init();
@@ -47,6 +47,12 @@ contract GovernanceToken is Initializable, ERC1155Upgradeable, AccessControlUpgr
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(MINTER_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
+    }
+
+    function grantStakingRole(address stakingContract)
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
         require(stakingContract != address(0), "invalid staking contract");
         _grantRole(STAKING_CONTRACT_ROLE, stakingContract);
         emit StakingRoleGranted(stakingContract);
