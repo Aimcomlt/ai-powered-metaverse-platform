@@ -1,6 +1,5 @@
 import { useState, useCallback } from 'react';
-import { ProofOfObservation, PoO_TaskFlow } from '../contracts';
-import { getSigner } from '../services/provider';
+import useContract from './useContract';
 
 interface RewardParams {
   user: string;
@@ -16,23 +15,8 @@ export const usePoOFlow = (account?: string) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const getProofOfObservation = useCallback(async () => {
-    const address =
-      process.env.REACT_APP_PROOF_OF_OBSERVATION_ADDRESS ||
-      process.env.PROOF_OF_OBSERVATION_ADDRESS ||
-      '0x0000000000000000000000000000000000000000';
-    const signer = await getSigner(account);
-    return new ProofOfObservation(address, signer);
-  }, [account]);
-
-  const getPoOTaskFlow = useCallback(async () => {
-    const address =
-      process.env.REACT_APP_POO_TASK_FLOW_ADDRESS ||
-      process.env.POO_TASK_FLOW_ADDRESS ||
-      '0x0000000000000000000000000000000000000000';
-    const signer = await getSigner(account);
-    return new PoO_TaskFlow(address, signer);
-  }, [account]);
+  const getProofOfObservation = useContract('ProofOfObservation', account);
+  const getPoOTaskFlow = useContract('PoO_TaskFlow', account);
 
   const submitTask = useCallback(
     async (taskId: bigint, proof: string) => {
