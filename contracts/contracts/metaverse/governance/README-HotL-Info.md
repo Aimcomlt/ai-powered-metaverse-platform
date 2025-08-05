@@ -60,8 +60,8 @@ Each proposal includes:
 
  🧰 Core Functions
 
- ✅ `rewardFromPoO(user, taskId, ftId, gtReward)`
-Issues GT to the user and mints FTs.
+ ✅ `validateTask(user, taskId, ftId, gtReward)`
+Credits GT to the user and mints corresponding FTs.
 - 🔐 Can only be called by the PoO contract
 
  🧠 `createProposal(desc, ipfsHash, eligibleGTId, target, data)`
@@ -107,7 +107,7 @@ This ensures:
 
 ```solidity
 // From PoO contract
-HouseOfTheLaw(rewarder).rewardFromPoO(user, taskId, 1, 20);
+HouseOfTheLaw(rewarder).validateTask(user, taskId, 1, 20);
 
 // From UI with console open
 house.createProposal(
