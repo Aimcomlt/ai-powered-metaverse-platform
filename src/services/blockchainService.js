@@ -1,10 +1,9 @@
-import Web3 from 'web3';
-import ERC1155ABI from './ERC1155ABI.json'; // Import your ERC-1155 contract ABI
+import { ethers } from 'ethers';
+import loadContract from '../contracts/loadContract';
 
-const web3 = new Web3(Web3.givenProvider || 'http://localhost:8545');
+const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
-const CONTRACT_ADDRESS = '0xYourContractAddressHere'; // Replace with your contract address
-const contract = new web3.eth.Contract(ERC1155ABI, CONTRACT_ADDRESS);
+const getContract = (account) => loadContract('GovernanceToken', provider.getSigner(account));
 
 // Function to upload metadata to IPFS
 export const uploadMetadataToIPFS = async (metadata) => {
@@ -27,9 +26,9 @@ export const uploadMetadataToIPFS = async (metadata) => {
 // Function to create a new token
 export const createToken = async (account, tokenId, amount, metadataHash) => {
   try {
-    const receipt = await contract.methods.create(account, tokenId, amount, metadataHash)
-      .send({ from: account });
-    return receipt;
+    const contract = await getContract(account);
+    const tx = await contract.create(account, tokenId, amount, metadataHash);
+    return tx.wait();
   } catch (error) {
     console.error('Error creating token:', error);
     throw error;
