@@ -1,5 +1,6 @@
 import CryptoJS from 'crypto-js';
 import blockchainService from './blockchainService';
+import { getProvider } from './provider';
 
 // Function to create SHA-256 hash
 export const createHash = (data) => {
@@ -19,8 +20,10 @@ export const createBlock = async (previousBlockHash, metadata) => {
     const metadataHash = await blockchainService.uploadMetadataToIPFS(metadata);
 
     // Store new block hash and metadata hash on the blockchain
-    const account = await web3.eth.getAccounts()[0]; // Get the first account
-    await blockchainService.createToken(account, newBlockHash, 1, metadataHash);
+    const provider = getProvider();
+    const accounts = await provider.listAccounts();
+    const account = accounts[0];
+    await blockchainService.mintGovernanceToken(account, 0, 0, 0, metadataHash);
 
     return newBlockHash;
   } catch (error) {

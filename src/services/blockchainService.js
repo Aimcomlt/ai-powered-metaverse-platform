@@ -1,5 +1,8 @@
+import { ethers } from 'ethers';
 import loadContract from '../contracts/loadContract';
 import { getSigner } from './provider';
+
+const MINTER_ROLE = ethers.utils.id('MINTER_ROLE');
 
 const getContract = async (account) => {
   const signer = await getSigner(account);
@@ -24,14 +27,30 @@ export const uploadMetadataToIPFS = async (metadata) => {
   }
 };
 
-// Function to create a new token
-export const createToken = async (account, tokenId, amount, metadataHash) => {
+// Mint a new governance token with role check
+export const mintGovernanceToken = async (
+  account,
+  factionId,
+  level,
+  taskId,
+  proofURI
+) => {
   try {
     const contract = await getContract(account);
-    const tx = await contract.create(account, tokenId, amount, metadataHash);
+    const hasRole = await contract.hasRole(MINTER_ROLE, account);
+    if (!hasRole) {
+      throw new Error('Caller lacks MINTER_ROLE');
+    }
+    const tx = await contract.mintGT(
+      account,
+      factionId,
+      level,
+      taskId,
+      proofURI
+    );
     return tx.wait();
   } catch (error) {
-    console.error('Error creating token:', error);
+    console.error('Error minting governance token:', error);
     throw error;
   }
 };
@@ -68,7 +87,7 @@ export const interactWithAIAgent = async (message) => {
 
 export default {
   uploadMetadataToIPFS,
-  createToken,
+  mintGovernanceToken,
   getMetadataFromIPFS,
   interactWithAIAgent
 };

@@ -1,5 +1,6 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import type { TaskMetrics } from '../contracts/types';
+import { getTaskMetrics } from '../services/contractService';
 
 interface TaskState {
   tasks: any[];
@@ -13,6 +14,14 @@ const initialState: TaskState = {
   metrics: {},
 };
 
+export const fetchTaskMetrics = createAsyncThunk(
+  'task/fetchMetrics',
+  async (taskId: number) => {
+    const metrics = await getTaskMetrics(taskId);
+    return { taskId, metrics };
+  }
+);
+
 const taskSlice = createSlice({
   name: 'task',
   initialState,
@@ -23,13 +32,14 @@ const taskSlice = createSlice({
     setCurrentTask(state, action: PayloadAction<any>) {
       state.currentTask = action.payload;
     },
-    updateMetrics(state, action: PayloadAction<{ taskId: number; metrics: TaskMetrics }>) {
+  },
+  extraReducers: (builder) => {
+    builder.addCase(fetchTaskMetrics.fulfilled, (state, action) => {
       const { taskId, metrics } = action.payload;
       state.metrics[taskId] = metrics;
-    },
+    });
   },
 });
 
-export const { setTasks, setCurrentTask, updateMetrics } = taskSlice.actions;
+export const { setTasks, setCurrentTask } = taskSlice.actions;
 export default taskSlice.reducer;
-
