@@ -28,6 +28,7 @@ This contract protects the **value and fairness** of the system:
 - ✅ **Prevents double rewards** for the same task
 - ✅ **Ensures real GT commitment** (user had to stake)
 - ✅ **Only rewards verified contributors**
+- ✅ **Enforces AI console gating and off-chain checks**
 - ✅ **Separates proof (PoO) from payout** logic
 
 This contract ensures **only real work gets rewarded** with usable Functional Tokens (FTs) and discourages spam, gaming, or accidental minting.
@@ -41,6 +42,7 @@ This contract ensures **only real work gets rewarded** with usable Functional To
 | `IGTStaking` | Checks if GT was staked, and unstake it afterward |
 | `IFunctionalToken` | Mints the actual reward (FTs) |
 | `IProofOfObservation` | Confirms the task was submitted and validated |
+| `IAIAssistantGate` | Verifies the user's AI console is open |
 
 ---
 
@@ -78,7 +80,8 @@ Now Alice has a tradable or usable token — backed by proof of work.
 initialize(
   address functionalToken,
   address gtStaking,
-  address proofOfObservation
+  address proofOfObservation,
+  address aiGate
 )
 ````
 
@@ -90,7 +93,9 @@ rewardAfterTask(
   uint256 tokenId,  // GT used
   uint256 taskId,
   uint256 ftId,     // FT to be minted
-  uint256 ftAmount
+  uint256 ftAmount,
+  bool moderationPassed,
+  bool uniqueSubmission
 )
 ```
 
@@ -100,7 +105,7 @@ rewardAfterTask(
 
 * 🧠 This contract handles final reward minting for validated, GT-backed tasks
 * 🧷 It verifies the GT was staked, the task was validated, and prevents double-minting
-* 🧩 Works alongside `GTStaking`, `ProofOfObservation`, and `FunctionalToken`
+* 🧩 Works alongside `GTStaking`, `ProofOfObservation`, `AIAssistantGate`, and `FunctionalToken`
 
 This creates a **fair and secure token economy**, ensuring real effort = real reward.
 
