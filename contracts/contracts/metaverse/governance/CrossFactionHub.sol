@@ -13,6 +13,15 @@ interface IProofOfObservation {
     function isValidated(address proposer) external view returns (bool);
 }
 
+interface IGenesisBlockFaction {
+    function name() external view returns (string memory);
+}
+
+interface IMpNSRegistry {
+    function ownerOf(string calldata name) external view returns (address);
+    function isFrozen(string calldata name) external view returns (bool);
+}
+
 /// @notice Cross-faction governance coordinator and proposal executor.
 contract CrossFactionHub is Initializable, UUPSUpgradeable, AccessControlUpgradeable {
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
@@ -39,6 +48,7 @@ contract CrossFactionHub is Initializable, UUPSUpgradeable, AccessControlUpgrade
     IGovernanceToken public governanceToken;
     IProofOfObservation public proofOfObservation;
     uint256 public votingTokenId;
+    IMpNSRegistry public mpnsRegistry;
 
     event FactionRegistered(string indexed faction, address indexed by);
     event ProposalCreated(uint256 indexed id, address indexed proposer, string title);
@@ -50,13 +60,19 @@ contract CrossFactionHub is Initializable, UUPSUpgradeable, AccessControlUpgrade
         _disableInitializers();
     }
 
-    function initialize(address governanceToken_, address poO_, uint256 tokenIdForVoting) public initializer {
+    function initialize(
+        address governanceToken_,
+        address poO_,
+        uint256 tokenIdForVoting,
+        address mpnsRegistry_
+    ) public initializer {
         __AccessControl_init();
         __UUPSUpgradeable_init();
 
         governanceToken = IGovernanceToken(governanceToken_);
         proofOfObservation = IProofOfObservation(poO_);
         votingTokenId = tokenIdForVoting;
+        mpnsRegistry = IMpNSRegistry(mpnsRegistry_);
 
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
@@ -68,6 +84,21 @@ contract CrossFactionHub is Initializable, UUPSUpgradeable, AccessControlUpgrade
     /// -------------------------
     function registerFaction(string calldata factionName) external {
         require(registeredFactions[factionName] == address(0), "Already registered");
+
+        bool isGenesisBlock = false;
+        if (msg.sender.code.length > 0) {
+            try IGenesisBlockFaction(msg.sender).name() returns (string memory deployedName) {
+                if (keccak256(bytes(deployedName)) == keccak256(bytes(factionName))) {
+                    isGenesisBlock = true;
+                }
+            } catch {}
+        }
+
+        if (!isGenesisBlock) {
+            require(mpnsRegistry.ownerOf(factionName) == msg.sender, "Name not owned");
+            require(mpnsRegistry.isFrozen(factionName), "Name not frozen");
+        }
+
         registeredFactions[factionName] = msg.sender;
         emit FactionRegistered(factionName, msg.sender);
     }
@@ -143,5 +174,5 @@ contract CrossFactionHub is Initializable, UUPSUpgradeable, AccessControlUpgrade
 
     /// @dev Reserve storage space to allow layout changes in the future.
     /// New variables must be appended at the end and the gap size adjusted if used.
-    uint256[50] private __gap;
+    uint256[49] private __gap;
 }
