@@ -1,108 +1,123 @@
-```markdown
- 👁️ ProofOfObservation.sol
+````markdown
+# 🔁 PoO_TaskFlow.sol — AI-Gated Task Reward Validator
 
- Trust, But Verify: This Contract Ensures You Actually Did the Work
+## 🎯 Purpose
 
- 📌 What Is This?
+`PoO_TaskFlow` is a smart contract that controls how **Functional Tokens (FTs)** are rewarded **after a task is completed** — but only if the task passes through a multi-layered validation system involving:
 
-`ProofOfObservation` (PoO) is the **task verification gatekeeper** in the metaverse platform.
+- 🤖 An **AI Assistant Console** (must be active for the user)
+- ✅ **Proof of Observation (PoO)** records (task must be submitted and validated)
+- 🧠 **Content moderation** + **Uniqueness check**
+- 🔒 **GT token staking** (user must have staked a Governance Token to access the task)
 
-It’s the only contract that decides **if a user truly completed a task**, and only after approval does it:
-- ✅ Tell `HouseOfTheLaw` to reward the user with **Governance Tokens (GTs)** and **Functional Tokens (FTs)**.
-
-No shortcuts, no fake completions.  
-**Only valid work gets rewarded.**
-
- 🧠 Why Is This Important?
-
-In Web3 learning or contribution platforms, people sometimes claim they did things — but didn’t.
-
-PoO fixes that.
-
-> It acts like a “teacher” who checks your work before you get your grade or your reward.
+Only after all conditions are met does this contract:
+- 🧬 Unstake the GT
+- 🎁 Mint the FT reward
+- 📜 Emit reward + validation logs
 
 ---
 
- 🧩 How It Fits Into the Ecosystem
+## 🧠 How It Works (Lifecycle Flow)
 
-```
-
-User → Submits Task → ProofOfObservation → (if valid) → HouseOfTheLaw → 🎖 GTs & 💰 FTs Minted
-
+```text
+User stakes GT token (GTStaking)
+          ↓
+User opens AI Assistant Console (AI Gate required)
+          ↓
+User completes and submits task (via ProofOfObservation)
+          ↓
+Validator checks:
+    - Was the console open?
+    - Was the submission moderated and unique?
+    - Was GT staked?
+    - Was PoO task validated and matches user?
+          ↓
+If all pass:
+    - GT is unstaked
+    - FT is minted
+    - Task marked as rewarded ✅
 ````
-
-- **GTs** = Proof of your reputation and influence
-- **FTs** = Usable tokens for tools, access, or trading
-
-
- 🛠 How It Works (Simplified)
-
- Step 1: Submit a Task
-A user uploads proof of their work (like a project, essay, or video link) by calling:
-```solidity
-submitTask(taskId, ipfsHash)
-````
-
- Step 2: Task Gets Reviewed
-
-A trusted validator (human or AI agent) reviews it and calls:
-
-```solidity
-validateTask(taskId, ftId, gtReward)
-```
-
- Step 3: Tokens Are Minted
-
-If approved:
-
-* The PoO contract tells **HouseOfTheLaw** to issue your GT and FT rewards.
-* Your task is marked “validated” forever on the blockchain.
-
- 🔐 Who Has Permission to Approve?
-
-Only wallets with the `VALIDATOR_ROLE` (trusted humans or agents) can approve tasks.
-
-Admins can assign or revoke validator roles.
-
- 🧾 Key Events
-
-| Event           | What It Tracks                                     |
-| --------------- | -------------------------------------------------- |
-| `TaskSubmitted` | A user submitted task proof                        |
-| `TaskValidated` | A validator approved it and rewards were triggered |
-
- 🛡️ Security + Upgradeability
-
-* Uses **role-based access control** (via OpenZeppelin).
-* Upgradeable using the **UUPS proxy pattern**, so new features can be added safely over time.
-* Prevents double validation or fake task entries.
-
- 🧬 Example Use Case
-
-```plaintext
-You finish a Faction AI tutorial.
-↓
-You submit your task via submitTask().
-↓
-A validator reviews it and validates it.
-↓
-HouseOfTheLaw mints your GTs + FTs.
-↓
-You’re now more influential — and richer!
-```
-
- ✅ Summary
-
-| Feature         | What It Means                                                    |
-| --------------- | ---------------------------------------------------------------- |
-| Task Submission | Anyone can submit proof they finished a task                     |
-| Validation      | Only trusted validators can approve a task                       |
-| Rewards         | Minted *only* after validation, by HouseOfTheLaw                 |
-| Trust Layer     | Guarantees all GT/FT minting is based on real, verified activity |
-| Transparent     | All actions recorded and visible on-chain                        |
 
 ---
 
-> This contract is the heart of fair reward systems — **your proof of contribution gets verified, and only then do you earn what you deserve**.
+## 🧰 Core Functions
 
-```
+### 🔐 `initialize(...)`
+
+Sets up references to the four required external contracts:
+
+* `FunctionalToken` (used to mint reward)
+* `GTStaking` (to check/unstake GT)
+* `ProofOfObservation` (task submissions)
+* `AIAssistantGate` (UI layer flag)
+
+---
+
+### 🪙 `rewardAfterTask(...)`
+
+Called by a human validator with the `VALIDATOR_ROLE` after reviewing the task and verifying it off-chain.
+
+Checks:
+
+* AI console was open (`aiGate.isConsoleOpen(user)`)
+* Submission passed moderation and is unique
+* Task was submitted + validated via PoO
+* User staked the required GT token
+* Task hasn't been rewarded already
+
+If all pass:
+
+* FT is minted
+* GT is unstaked
+* Events emitted
+* Task marked as rewarded
+
+---
+
+## 🛡️ Roles
+
+| Role                 | Permission                          |
+| -------------------- | ----------------------------------- |
+| `DEFAULT_ADMIN_ROLE` | Can update references, manage roles |
+| `VALIDATOR_ROLE`     | Can call `rewardAfterTask()`        |
+| `UPGRADER_ROLE`      | Can upgrade the contract            |
+
+---
+
+## 📦 Events
+
+* `TaskRewarded(user, taskId, ftId, amount)` — After FT minting
+* `TaskOffchainValidated(user, taskId, moderationPassed, uniqueSubmission)` — Off-chain review log
+
+---
+
+## 🔌 Connected Contracts
+
+| Contract             | Purpose                           |
+| -------------------- | --------------------------------- |
+| `FunctionalToken`    | Mints FT rewards                  |
+| `GTStaking`          | Verifies and unstakes GTs         |
+| `ProofOfObservation` | Validates that task was submitted |
+| `AIAssistantGate`    | Ensures UI console was open       |
+
+---
+
+## 💡 Why This Layer Matters
+
+This contract is a **final checkpoint** in the Proof of Observation reward pipeline.
+
+It ensures:
+
+* 🧠 AI interface was used (keeps UX consistent)
+* 🧽 Content meets moderation standards
+* 🚫 No double rewards or fraudulent reuse
+* 🔁 GT token flow is respected
+* 👁️ PoO validation is verifiable on-chain
+
+---
+
+## 📌 Summary
+
+> Think of `PoO_TaskFlow` as your **reward guardian**.
+> It ensures only **intentional, AI-reviewed, and community-compliant work** results in tokenized rewards.
+
