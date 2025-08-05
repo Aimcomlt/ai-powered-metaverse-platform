@@ -51,6 +51,8 @@ contract HouseOfTheLaw is Initializable, AccessControlUpgradeable, UUPSUpgradeab
     event ProposalCreated(uint256 indexed proposalId, address indexed proposer, string ipfsHash);
     event ProposalExecuted(uint256 indexed proposalId, address indexed executor, address indexed target, uint256 gtId);
     event Voted(uint256 indexed proposalId, address indexed voter, uint256 votes, uint256 cost, uint256 indexed gtId);
+    event AlphaUpdated(uint256 oldAlpha, uint256 newAlpha, address indexed caller);
+    event ReserveRatioUpdated(uint256 oldRatio, uint256 newRatio, address indexed caller);
 
     constructor() {
         _disableInitializers();
@@ -82,6 +84,19 @@ contract HouseOfTheLaw is Initializable, AccessControlUpgradeable, UUPSUpgradeab
         proofOfObservation = poO;
     }
 
+    function setAlpha(uint256 newAlpha) external onlyGovernanceOrAI {
+        uint256 old = alpha;
+        alpha = newAlpha;
+        emit AlphaUpdated(old, newAlpha, msg.sender);
+    }
+
+    function setReserveRatio(uint256 newRatio) external onlyGovernanceOrAI {
+        require(newRatio <= 10_000, "reserve too high");
+        uint256 old = reserveRatio;
+        reserveRatio = newRatio;
+        emit ReserveRatioUpdated(old, newRatio, msg.sender);
+    }
+
     modifier onlyPoO() {
         require(msg.sender == proofOfObservation, "Caller is not PoO");
         _;
@@ -89,6 +104,13 @@ contract HouseOfTheLaw is Initializable, AccessControlUpgradeable, UUPSUpgradeab
 
     modifier onlyAIAuthorized(address user) {
         require(aiGate.isConsoleOpen(user), "AI console not active");
+        _;
+    }
+
+    modifier onlyGovernanceOrAI() {
+        if (!hasRole(DEFAULT_ADMIN_ROLE, msg.sender)) {
+            require(aiGate.isConsoleOpen(msg.sender), "AI console not active");
+        }
         _;
     }
 
