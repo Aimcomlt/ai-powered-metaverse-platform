@@ -12,6 +12,7 @@ interface IFunctionalToken {
 interface IGTStaking {
     function unstake(address user, uint256 tokenId) external returns (bool);
     function isStaked(address user, uint256 tokenId) external view returns (bool);
+    function startCooldown(address user, uint256 duration) external;
 }
 
 interface IProofOfObservation {
@@ -21,6 +22,10 @@ interface IProofOfObservation {
         returns (address user, uint256 id, string memory proof, bool validated);
 }
 
+interface IAIAssistantGate {
+    function isConsoleOpen(address user) external view returns (bool);
+}
+
 contract PoO_TaskFlow is Initializable, UUPSUpgradeable, AccessControlUpgradeable {
     bytes32 public constant VALIDATOR_ROLE = keccak256("VALIDATOR_ROLE");
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
@@ -28,22 +33,28 @@ contract PoO_TaskFlow is Initializable, UUPSUpgradeable, AccessControlUpgradeabl
     IFunctionalToken public functionalToken;
     IGTStaking public gtStaking;
     IProofOfObservation public proofOfObservation;
+    IAIAssistantGate public aiGate;
 
     mapping(uint256 => bool) public rewardedTasks;
 
+    uint256 public constant FAILURE_COOLDOWN = 1 days;
+
     event TaskRewarded(address indexed user, uint256 taskId, uint256 ftId, uint256 amount);
+    event TaskOffchainValidated(address indexed user, uint256 taskId, bool moderationPassed, bool uniqueSubmission);
+    event TaskFailed(address indexed user, uint256 taskId, uint256 tokenId);
 
     constructor() {
         _disableInitializers();
     }
 
-    function initialize(address ftAddr, address stakingAddr, address pooAddr) public initializer {
+    function initialize(address ftAddr, address stakingAddr, address pooAddr, address aiGateAddr) public initializer {
         __AccessControl_init();
         __UUPSUpgradeable_init();
 
         functionalToken = IFunctionalToken(ftAddr);
         gtStaking = IGTStaking(stakingAddr);
         proofOfObservation = IProofOfObservation(pooAddr);
+        aiGate = IAIAssistantGate(aiGateAddr);
 
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(VALIDATOR_ROLE, msg.sender);
@@ -55,8 +66,13 @@ contract PoO_TaskFlow is Initializable, UUPSUpgradeable, AccessControlUpgradeabl
         uint256 tokenId,  // GT used to unlock task
         uint256 taskId,
         uint256 ftId,
-        uint256 ftAmount
+        uint256 ftAmount,
+        bool moderationPassed,
+        bool uniqueSubmission
     ) external onlyRole(VALIDATOR_ROLE) {
+        require(aiGate.isConsoleOpen(user), "AI console not active");
+        require(moderationPassed, "Content moderation failed");
+        require(uniqueSubmission, "Duplicate submission");
         require(gtStaking.isStaked(user, tokenId), "GT not staked");
         require(!rewardedTasks[taskId], "Task already rewarded");
 
@@ -70,7 +86,17 @@ contract PoO_TaskFlow is Initializable, UUPSUpgradeable, AccessControlUpgradeabl
 
         rewardedTasks[taskId] = true;
 
+        emit TaskOffchainValidated(user, taskId, moderationPassed, uniqueSubmission);
         emit TaskRewarded(user, taskId, ftId, ftAmount);
+    }
+
+    function failTask(address user, uint256 tokenId, uint256 taskId) external onlyRole(VALIDATOR_ROLE) {
+        require(gtStaking.isStaked(user, tokenId), "GT not staked");
+        bool unstaked = gtStaking.unstake(user, tokenId);
+        require(unstaked, "Unstake failed");
+        gtStaking.startCooldown(user, FAILURE_COOLDOWN);
+        rewardedTasks[taskId] = true;
+        emit TaskFailed(user, taskId, tokenId);
     }
 
     function _authorizeUpgrade(address newImplementation) internal override onlyRole(UPGRADER_ROLE) {}
