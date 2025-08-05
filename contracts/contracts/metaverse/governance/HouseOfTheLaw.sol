@@ -91,7 +91,9 @@ contract HouseOfTheLaw is Initializable, AccessControlUpgradeable, UUPSUpgradeab
         _;
     }
 
-    function rewardFromPoO(
+    /// @notice Called by ProofOfObservation after a task is validated.
+    ///         Mints the user's FT reward and credits their GT balance.
+    function validateTask(
         address user,
         uint256 taskId,
         uint256 ftId,

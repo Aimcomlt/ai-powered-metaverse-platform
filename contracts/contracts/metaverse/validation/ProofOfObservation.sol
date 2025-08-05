@@ -6,7 +6,13 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/U
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
 interface IHouseOfTheLaw {
-    function validateTask(address user, uint256 taskId, uint256 ftId, uint256 gtReward) external;
+    /// @notice Credits GT and mints FTs for a validated task.
+    function validateTask(
+        address user,
+        uint256 taskId,
+        uint256 ftId,
+        uint256 gtReward
+    ) external;
 }
 
 /**
