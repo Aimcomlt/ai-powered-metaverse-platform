@@ -1,4 +1,5 @@
 import { Contract, Signer, providers } from 'ethers';
+import type { Proposal, TaskMetrics } from './types';
 
 export class GovernanceToken extends Contract {
   static readonly abi = [
@@ -85,10 +86,15 @@ export class CrossFactionHub extends Contract {
   }
 }
 
+export interface CrossFactionHub {
+  getProposal(proposalId: bigint): Promise<Proposal>;
+}
+
 export class GTStaking extends Contract {
   static readonly abi = [
     'function initialize(address gt_,address ft_,address config_)',
     'function setTaskMetrics(uint256 taskId,uint256 demand,uint256 supply)',
+    'function taskMetrics(uint256 taskId) view returns (uint256 demand,uint256 supply)',
     'function stake(uint256 id,uint256 amount)',
     'function completeTask(uint256 id,uint256 amount,uint256 taskId)',
     'function calculateReward(uint256 taskId) view returns (uint256)',
@@ -104,6 +110,10 @@ export class GTStaking extends Contract {
   constructor(address: string, signerOrProvider: Signer | providers.Provider) {
     super(address, GTStaking.abi, signerOrProvider);
   }
+}
+
+export interface GTStaking {
+  taskMetrics(taskId: bigint): Promise<TaskMetrics>;
 }
 
 export class HouseOfTheLaw extends Contract {
