@@ -36,7 +36,7 @@ contract ProofOfObservation is Initializable, UUPSUpgradeable, AccessControlUpgr
     mapping(address => uint256[]) public userTasks;
 
     event TaskSubmitted(address indexed user, uint256 indexed taskId, string proof);
-    event TaskValidated(address indexed validator, address indexed user, uint256 taskId, uint256 gtReward);
+    event TaskValidated(address indexed validator, address indexed user, uint256 indexed taskId, uint256 gtReward);
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -79,7 +79,7 @@ contract ProofOfObservation is Initializable, UUPSUpgradeable, AccessControlUpgr
         // Trigger reward via HouseOfTheLaw
         houseOfTheLaw.validateTask(submission.user, taskId, ftId, gtReward);
 
-        emit TaskValidated(msg.sender, submission.user, taskId, gtReward);
+        emit TaskValidated(msg.sender, user, taskId, gtReward);
     }
 
     /// @notice Returns true if the user has at least one validated task submission.
