@@ -8,6 +8,11 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/U
 import {GovernanceToken} from "../tokens/GovernanceToken.sol";
 import {FunctionalToken} from "../tokens/FunctionalToken.sol";
 
+interface IRewardConfig {
+    function alpha() external view returns (uint256);
+    function reserveRatio() external view returns (uint256);
+}
+
 /**
  * @title GTStaking
  * @notice Locks Governance Tokens while a task is being completed and mints
@@ -18,6 +23,10 @@ contract GTStaking is Initializable, AccessControlUpgradeable, UUPSUpgradeable {
 
     GovernanceToken public gt;
     FunctionalToken public ft;
+    IRewardConfig public rewardConfig;
+    uint256 public totalFtMinted;
+
+    uint256 private constant BONDING_CURVE_BASE = 1_000;
 
     event Staked(address indexed user, uint256 indexed tokenId, uint256 amount);
     event Unstaked(address indexed user, uint256 indexed tokenId, uint256 amount);
@@ -29,12 +38,13 @@ contract GTStaking is Initializable, AccessControlUpgradeable, UUPSUpgradeable {
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() { _disableInitializers(); }
 
-    function initialize(address gt_, address ft_) public initializer {
+    function initialize(address gt_, address ft_, address config_) public initializer {
         __AccessControl_init();
         __UUPSUpgradeable_init();
         gt = GovernanceToken(gt_);
         ft = FunctionalToken(ft_);
         require(ft.hasRole(ft.MINTER_ROLE(), address(this)), "missing minter role");
+        rewardConfig = IRewardConfig(config_);
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
     }
@@ -55,15 +65,22 @@ contract GTStaking is Initializable, AccessControlUpgradeable, UUPSUpgradeable {
         require(staked[msg.sender][id] >= amount, "insufficient stake");
         staked[msg.sender][id] -= amount;
         gt.stakeTransferFrom(address(this), msg.sender, id, amount, "");
-        uint256 reward = calculateReward(taskId) * amount / 1e18;
-        ft.mint(msg.sender, id, reward, "");
+        uint256 rewardAmount = calculateReward(taskId) * amount / 1e18;
+        ft.mint(msg.sender, id, rewardAmount, "");
+        totalFtMinted += rewardAmount;
     }
 
     function calculateReward(uint256 taskId) public view returns (uint256) {
         TaskMetrics memory m = taskMetrics[taskId];
-        if (m.demand > m.supply) return 125e16; // 1.25 * 1e18
-        if (m.supply > m.demand) return 75e16;  // 0.75 * 1e18
-        return 1e18; // 1 * 1e18
+        uint256 base;
+        if (m.demand > m.supply) base = 125e16; // 1.25 * 1e18
+        else if (m.supply > m.demand) base = 75e16; // 0.75 * 1e18
+        else base = 1e18; // 1 * 1e18
+
+        uint256 factor = 10_000 + rewardConfig.alpha() - rewardConfig.reserveRatio();
+        uint256 reward = (base * factor) / 10_000;
+        uint256 dynamic = (1e18 * BONDING_CURVE_BASE) / (BONDING_CURVE_BASE + totalFtMinted);
+        return (reward * dynamic) / 1e18;
     }
 
     function isStaked(address user, uint256 tokenId) external view returns (bool) {
@@ -84,6 +101,6 @@ contract GTStaking is Initializable, AccessControlUpgradeable, UUPSUpgradeable {
 
     /// @dev Reserve storage space to allow layout changes in the future.
     /// New variables must be appended at the end and the gap size adjusted if used.
-    uint256[50] private __gap;
+    uint256[48] private __gap;
 }
 
