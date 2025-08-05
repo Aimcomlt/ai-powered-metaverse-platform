@@ -35,6 +35,7 @@ contract GTStaking is Initializable, AccessControlUpgradeable, UUPSUpgradeable {
         gt = GovernanceToken(gt_);
         ft = FunctionalToken(ft_);
         require(gt.hasRole(gt.STAKING_CONTRACT_ROLE(), address(this)), "missing staking role");
+        require(ft.hasRole(ft.MINTER_ROLE(), address(this)), "missing minter role");
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
     }
@@ -44,12 +45,14 @@ contract GTStaking is Initializable, AccessControlUpgradeable, UUPSUpgradeable {
     }
 
     function stake(uint256 id, uint256 amount) external {
+        require(amount > 0, "amount=0");
         gt.stakeTransferFrom(msg.sender, address(this), id, amount, "");
         staked[msg.sender][id] += amount;
         emit Staked(msg.sender, id, amount);
     }
 
     function completeTask(uint256 id, uint256 amount, uint256 taskId) external {
+        require(amount > 0, "amount=0");
         require(staked[msg.sender][id] >= amount, "insufficient stake");
         staked[msg.sender][id] -= amount;
         gt.stakeTransferFrom(address(this), msg.sender, id, amount, "");
