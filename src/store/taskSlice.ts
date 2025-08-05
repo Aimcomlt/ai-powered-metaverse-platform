@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import type { TaskMetrics } from '../contracts/types';
-import { getTaskMetrics } from '../services/contractService';
+import { getTaskMetrics } from '../services/taskService';
 
 interface TaskState {
   tasks: any[];
