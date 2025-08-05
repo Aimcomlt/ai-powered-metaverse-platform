@@ -17,6 +17,13 @@ export interface ProposalCreatedEvent {
   target: string;
 }
 
+export interface VoteCastEvent {
+  id: bigint;
+  voter: string;
+  support: boolean;
+  weight: bigint;
+}
+
 export interface TaskMetrics {
   demand: bigint;
   supply: bigint;

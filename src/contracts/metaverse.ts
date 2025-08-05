@@ -1,5 +1,10 @@
 import { Contract, Signer, providers } from 'ethers';
-import type { Proposal, TaskMetrics } from './types';
+import type {
+  Proposal,
+  TaskMetrics,
+  ProposalCreatedEvent,
+  VoteCastEvent,
+} from './types';
 
 export class GovernanceToken extends Contract {
   static readonly abi = [
@@ -84,10 +89,53 @@ export class CrossFactionHub extends Contract {
   constructor(address: string, signerOrProvider: Signer | providers.Provider) {
     super(address, CrossFactionHub.abi, signerOrProvider);
   }
+
+  async queryProposalCreatedEvents(
+    fromBlock?: number | string,
+    toBlock?: number | string,
+  ): Promise<ProposalCreatedEvent[]> {
+    const events = await this.queryFilter(
+      this.filters.ProposalCreated(),
+      fromBlock,
+      toBlock,
+    );
+    return events.map((e) => ({
+      id: e.args?.id as bigint,
+      proposer: e.args?.proposer as string,
+      title: e.args?.title as string,
+      faction: e.args?.faction as string,
+      target: e.args?.target as string,
+    }));
+  }
+
+  async queryVoteCastEvents(
+    fromBlock?: number | string,
+    toBlock?: number | string,
+  ): Promise<VoteCastEvent[]> {
+    const events = await this.queryFilter(
+      this.filters.VoteCast(),
+      fromBlock,
+      toBlock,
+    );
+    return events.map((e) => ({
+      id: e.args?.id as bigint,
+      voter: e.args?.voter as string,
+      support: e.args?.support as boolean,
+      weight: e.args?.weight as bigint,
+    }));
+  }
 }
 
 export interface CrossFactionHub {
   getProposal(proposalId: bigint): Promise<Proposal>;
+  queryProposalCreatedEvents(
+    fromBlock?: number | string,
+    toBlock?: number | string,
+  ): Promise<ProposalCreatedEvent[]>;
+  queryVoteCastEvents(
+    fromBlock?: number | string,
+    toBlock?: number | string,
+  ): Promise<VoteCastEvent[]>;
 }
 
 export class GTStaking extends Contract {
