@@ -51,9 +51,15 @@ contract CrossFactionHub is Initializable, UUPSUpgradeable, AccessControlUpgrade
     IMpNSRegistry public mpnsRegistry;
 
     event FactionRegistered(string indexed faction, address indexed by);
-    event ProposalCreated(uint256 indexed id, address indexed proposer, string title);
+    event ProposalCreated(
+        uint256 indexed id,
+        address indexed proposer,
+        string title,
+        string indexed faction,
+        address indexed target
+    );
     event VoteCast(uint256 indexed id, address indexed voter, bool support, uint256 weight);
-    event ProposalExecuted(uint256 indexed id, address indexed executor);
+    event ProposalExecuted(uint256 indexed id, address indexed executor, address indexed target);
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -123,7 +129,7 @@ contract CrossFactionHub is Initializable, UUPSUpgradeable, AccessControlUpgrade
         p.target = target;
         p.data = data;
 
-        emit ProposalCreated(proposalId, msg.sender, title);
+        emit ProposalCreated(proposalId, msg.sender, title, factionName, target);
     }
 
     /// -------------------------
@@ -160,7 +166,7 @@ contract CrossFactionHub is Initializable, UUPSUpgradeable, AccessControlUpgrade
         (bool success, ) = p.target.call(p.data);
         require(success, "Call failed");
 
-        emit ProposalExecuted(proposalId, msg.sender);
+        emit ProposalExecuted(proposalId, msg.sender, p.target);
     }
 
     /// -------------------------
