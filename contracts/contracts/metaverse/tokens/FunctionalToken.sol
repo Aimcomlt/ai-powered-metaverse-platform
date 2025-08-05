@@ -16,7 +16,7 @@ contract FunctionalToken is Initializable, ERC1155Upgradeable, AccessControlUpgr
 
     uint256 public constant FT_START_ID = 10_000;
 
-    event FunctionalTokenMinted(address indexed to, uint256 id, uint256 amount, string purpose);
+    event FunctionalTokenMinted(address indexed to, uint256 indexed id, uint256 amount, string purpose);
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -39,6 +39,7 @@ contract FunctionalToken is Initializable, ERC1155Upgradeable, AccessControlUpgr
     function mint(address to, uint256 id, uint256 amount, bytes calldata data) external onlyRole(MINTER_ROLE) {
         require(id >= FT_START_ID, "ID reserved or invalid for FT");
         _mint(to, id, amount, data);
+        emit FunctionalTokenMinted(to, id, amount, "");
     }
 
     /**
@@ -63,6 +64,7 @@ contract FunctionalToken is Initializable, ERC1155Upgradeable, AccessControlUpgr
         require(id >= FT_START_ID, "ID reserved or invalid for FT");
         for (uint256 i; i < recipients.length; ) {
             _mint(recipients[i], id, amount, data);
+            emit FunctionalTokenMinted(recipients[i], id, amount, "");
             unchecked { ++i; }
         }
     }
