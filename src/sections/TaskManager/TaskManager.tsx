@@ -2,12 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import aiService from '../../services/aiService';
 import { fetchTaskMetrics } from '../../store/taskSlice';
+import Loader from '../../components/Loader';
+import { useToast } from '../../components/ToastProvider';
 import './TaskManager.css';
 
 const TaskManager: React.FC = () => {
   const [tasks, setTasks] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
+  const { showError } = useToast();
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -18,6 +21,7 @@ const TaskManager: React.FC = () => {
         setLoading(false);
       } catch (error) {
         console.error('Error fetching tasks:', error);
+        showError('Failed to fetch tasks');
         setLoading(false);
       }
     };
@@ -35,7 +39,7 @@ const TaskManager: React.FC = () => {
   };
 
   if (loading) {
-    return <div>Loading tasks...</div>;
+    return <Loader message="Loading tasks..." />;
   }
 
   return (
