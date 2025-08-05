@@ -25,10 +25,10 @@ contract GovernanceToken is Initializable, ERC1155Upgradeable, AccessControlUpgr
 
     event GTMinted(
         address indexed to,
-        uint256 indexed tokenId,
-        uint256 factionId,
+        uint256 tokenId,
+        uint256 indexed factionId,
         uint256 level,
-        uint256 taskId,
+        uint256 indexed taskId,
         string proofURI
     );
 
