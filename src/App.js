@@ -1,47 +1,57 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Header from './components/Header';
-import Home from './pages/Home';
-import QuantumQuorist from './pages/QuantumQuorist';
-import QuantumCourse from './pages/QuantumCourse';
-import BlockchainBattalion from './pages/BlockchainBattalion';
-import BlockchainCourse from './pages/BlockchainCourse'; 
-import AIArchitect from './pages/AIArchitect';
-import AICourse from './pages/AICourse'; 
-import IoTInnovator from './pages/IoTInnovator';
-import IoTCourse from './pages/IoTCourse';
-import TaskManager from './sections/TaskManager';
-import DocumentSubmission from './sections/DocumentSubmission';
-import Feedback from './sections/Feedback';
-import Governance from './sections/Governance';
-import ProjectManagement from './sections/ProjectManagement';
-import TaskBuilder from './sections/TaskBuilder';
+import ErrorBoundary from './components/ErrorBoundary';
+import Loader from './components/Loader';
+import { ToastProvider } from './components/ToastProvider';
+
+const Home = lazy(() => import('./pages/Home'));
+const QuantumQuorist = lazy(() => import('./pages/QuantumQuorist'));
+const QuantumCourse = lazy(() => import('./pages/QuantumCourse'));
+const BlockchainBattalion = lazy(() => import('./pages/BlockchainBattalion'));
+const BlockchainCourse = lazy(() => import('./pages/BlockchainCourse'));
+const AIArchitect = lazy(() => import('./pages/AIArchitect'));
+const AICourse = lazy(() => import('./pages/AICourse'));
+const IoTInnovator = lazy(() => import('./pages/IoTInnovator'));
+const IoTCourse = lazy(() => import('./pages/IoTCourse'));
+const TaskManager = lazy(() => import('./sections/TaskManager'));
+const DocumentSubmission = lazy(() => import('./sections/DocumentSubmission'));
+const Feedback = lazy(() => import('./sections/Feedback'));
+const Governance = lazy(() => import('./sections/Governance'));
+const ProjectManagement = lazy(() => import('./sections/ProjectManagement'));
+const TaskBuilder = lazy(() => import('./sections/TaskBuilder'));
 import './App.css';
 
 const App = () => {
   return (
-    <Router>
-      <div className="app">
-        <Header />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/quantum-quorist" element={<QuantumQuorist />} />
-          <Route path="/quantum-quorist/course" element={<QuantumCourse />} />
-          <Route path="/blockchain-battalion" element={<BlockchainBattalion />} />
-          <Route path="/blockchain-battalion/course" element={<BlockchainCourse />} /> 
-          <Route path="/ai-architect" element={<AIArchitect />} />
-          <Route path="/ai-architect/course" element={<AICourse />} />
-          <Route path="/iot-innovator" element={<IoTInnovator />} />
-          <Route path="/iot-innovator/course" element={<IoTCourse />} />
-          <Route path="/tasks" element={<TaskManager />} />
-          <Route path="/submit" element={<DocumentSubmission />} />
-          <Route path="/feedback" element={<Feedback />} />
-          <Route path="/governance" element={<Governance />} />
-          <Route path="/task-builder" element={<TaskBuilder />} />
-          <Route path="/projects" element={<ProjectManagement />} />
-        </Routes>
-      </div>
-    </Router>
+    <ErrorBoundary>
+      <ToastProvider>
+        <Router>
+          <div className="app">
+            <Header />
+            <Suspense fallback={<Loader />}>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/quantum-quorist" element={<QuantumQuorist />} />
+                <Route path="/quantum-quorist/course" element={<QuantumCourse />} />
+                <Route path="/blockchain-battalion" element={<BlockchainBattalion />} />
+                <Route path="/blockchain-battalion/course" element={<BlockchainCourse />} />
+                <Route path="/ai-architect" element={<AIArchitect />} />
+                <Route path="/ai-architect/course" element={<AICourse />} />
+                <Route path="/iot-innovator" element={<IoTInnovator />} />
+                <Route path="/iot-innovator/course" element={<IoTCourse />} />
+                <Route path="/tasks" element={<TaskManager />} />
+                <Route path="/submit" element={<DocumentSubmission />} />
+                <Route path="/feedback" element={<Feedback />} />
+                <Route path="/governance" element={<Governance />} />
+                <Route path="/task-builder" element={<TaskBuilder />} />
+                <Route path="/projects" element={<ProjectManagement />} />
+              </Routes>
+            </Suspense>
+          </div>
+        </Router>
+      </ToastProvider>
+    </ErrorBoundary>
   );
 };
 

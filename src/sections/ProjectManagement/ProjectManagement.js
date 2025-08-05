@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import aiService from '../../services/aiService';
+import Loader from '../../components/Loader';
+import { useToast } from '../../components/ToastProvider';
 import './ProjectManagement.css';
 
 const ProjectManagement = () => {
@@ -7,6 +9,7 @@ const ProjectManagement = () => {
   const [newProject, setNewProject] = useState({ name: '', description: '', resources: '' });
   const [monitoringData, setMonitoringData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { showToast } = useToast();
 
   useEffect(() => {
     const fetchMonitoringData = async () => {
@@ -16,6 +19,7 @@ const ProjectManagement = () => {
         setLoading(false);
       } catch (error) {
         console.error('Error fetching monitoring data:', error);
+        showToast('Failed to fetch monitoring data', 'error');
         setLoading(false);
       }
     };
@@ -35,8 +39,10 @@ const ProjectManagement = () => {
       const response = await aiService.allocateResources(newProject);
       setProjects([...projects, response.data]);
       setNewProject({ name: '', description: '', resources: '' });
+      showToast('Project added successfully', 'success');
     } catch (error) {
       console.error('Error adding project:', error);
+      showToast('Error adding project', 'error');
     }
   };
 
@@ -89,7 +95,7 @@ const ProjectManagement = () => {
       </div>
       <div className="monitoring-data">
         <h3>Project Monitoring</h3>
-        {loading ? <p>Loading monitoring data...</p> : (
+        {loading ? <Loader /> : (
           <ul>
             {monitoringData.map((data, index) => (
               <li key={index}>
