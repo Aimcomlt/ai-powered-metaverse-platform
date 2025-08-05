@@ -1,0 +1,16 @@
+{
+  "abi": [
+    "function initialize(string uri_)",
+    "function grantStakingRole(address stakingContract)",
+    "function mintGT(address to,uint256 factionId,uint256 level,uint256 taskId,string proofURI) returns (uint256)",
+    "function stakeTransferFrom(address from,address to,uint256 id,uint256 amount,bytes data)",
+    "function isApprovedForAll(address,address) view returns (bool)",
+    "function getUserGTs(address user) view returns (uint256[])",
+    "function supportsInterface(bytes4 interfaceId) view returns (bool)",
+    "function grantRole(bytes32 role,address account)",
+    "function revokeRole(bytes32 role,address account)",
+    "function hasRole(bytes32 role,address account) view returns (bool)",
+    "event GTMinted(address indexed to,uint256 tokenId,uint256 indexed factionId,uint256 level,uint256 indexed taskId,string proofURI)",
+    "event StakingRoleGranted(address indexed stakingContract)"
+  ]
+}
