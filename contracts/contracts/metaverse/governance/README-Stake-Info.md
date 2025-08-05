@@ -63,11 +63,13 @@ Called **only by ProofOfObservation** when a task is validated.
 
 ### 📐 `calculateReward(uint256 taskId)`
 
-Applies basic demand/supply reward logic:
+Applies demand/supply logic and global configuration:
 
 * 🔺 If demand > supply → bonus FT
 * 🔻 If supply > demand → lower FT
 * ⚖️ Balanced → 1x FT
+* ⚙️ Scales using `alpha` & `reserveRatio` from `HouseOfTheLaw`
+* 📉 Bonding curve lowers rewards as total FT supply rises
 
 ---
 
@@ -102,6 +104,7 @@ User retrieves GT after task completion or cancellation.
 * `GovernanceToken.sol`: must support `stakeTransferFrom`
 * `FunctionalToken.sol`: must support `mint(to, id, amount)`
 * `ProofOfObservation.sol`: verifies work validity
+* `HouseOfTheLaw.sol`: provides `alpha` and `reserveRatio`
 
 ---
 
@@ -111,6 +114,15 @@ User retrieves GT after task completion or cancellation.
 * 📦 Batch staking for multiple GT IDs
 * 🌐 On-chain AI scoring feedback loops
 * 🛡️ Slashing penalties for false PoO attempts
+
+---
+
+## 🛠 Migration Notes
+
+* `initialize` now expects the `HouseOfTheLaw` (or config) address.
+* Rewards are influenced by `alpha`/`reserveRatio` from that contract.
+* A bonding curve tracks total FT supply—existing deployments should
+  snapshot supply before upgrading.
 
 ---
 
