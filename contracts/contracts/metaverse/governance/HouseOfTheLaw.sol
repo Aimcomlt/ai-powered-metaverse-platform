@@ -127,6 +127,8 @@ contract HouseOfTheLaw is Initializable, AccessControlUpgradeable, UUPSUpgradeab
         governanceBalance[user] += gtReward;
         totalGT += gtReward;
 
+        // FT = (gtReward * alpha * (1 - reserveRatio / 10000)) / 10000
+        // Uses only this task's GT reward, independent of cumulative supply
         uint256 ftAmount = (gtReward * alpha * (10_000 - reserveRatio)) / 10_000 / 10_000;
         functionalToken.mint(user, ftId, ftAmount, "");
 
