@@ -36,8 +36,8 @@ contract PoO_TaskFlow is Initializable, UUPSUpgradeable, AccessControlUpgradeabl
 
     mapping(uint256 => bool) public rewardedTasks;
 
-    event TaskRewarded(address indexed user, uint256 taskId, uint256 ftId, uint256 amount);
-    event TaskOffchainValidated(address indexed user, uint256 taskId, bool moderationPassed, bool uniqueSubmission);
+    event TaskRewarded(address indexed user, uint256 indexed taskId, uint256 indexed ftId, uint256 amount);
+    event TaskOffchainValidated(address indexed user, uint256 indexed taskId, bool moderationPassed, bool uniqueSubmission);
 
     constructor() {
         _disableInitializers();
