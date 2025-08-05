@@ -16,7 +16,7 @@ After a user has staked a GT and completed a task — and that task has been val
 | 2️⃣ | The user completes a task (like writing AI prompts or solving a logic challenge) |
 | 3️⃣ | The task proof is **filtered off‑chain** for moderation and plagiarism |
 | 4️⃣ | The sanitized submission gets **validated** by an authority (via `ProofOfObservation`) |
-| 5️⃣ | This contract checks the task is valid and not previously rewarded |
+| 5️⃣ | This contract verifies the user's AI console is open, checks the task is valid, and not previously rewarded |
 | 6️⃣ | The GT is returned (unstaked), and the user earns a **FT (Functional Token)** |
 | 7️⃣ | The reward is recorded so it can’t happen again for the same task |
 
@@ -29,7 +29,7 @@ This contract protects the **value and fairness** of the system:
 - ✅ **Prevents double rewards** for the same task
 - ✅ **Ensures real GT commitment** (user had to stake)
 - ✅ **Only rewards verified contributors**
-- ✅ **Enforces AI console gating at stake and reward**
+- ✅ **Enforces AI console gating at stake, reward, and failure handling**
 - ✅ **Uses off-chain moderation & duplicate detection before PoO validation**
 - ✅ **Separates proof (PoO) from payout** logic
 
@@ -57,10 +57,11 @@ Let’s say Alice wants to build a prompt model for an AI assistant.
 3. An off-chain service filters the proof for moderation and plagiarism
 4. The **PoO contract validates** her sanitized submission
 5. This contract is triggered:
-   - Confirms her GT was staked
-   - Confirms her task was valid and passed off-chain checks
-   - Unstakes her GT
-   - Mints a FT to her wallet (reward!)
+    - Verifies her AI console is open
+    - Confirms her GT was staked
+    - Confirms her task was valid and passed off-chain checks
+    - Unstakes her GT
+    - Mints a FT to her wallet (reward!)
 
 Now Alice has a tradable or usable token — backed by proof of work.
 
@@ -111,6 +112,8 @@ failTask(
   uint256 taskId
 )
 ```
+
+Requires the user's AI console to remain open before unstaking their GT and scheduling the cooldown.
 
 ---
 

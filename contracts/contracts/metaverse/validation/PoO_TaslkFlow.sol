@@ -91,6 +91,7 @@ contract PoO_TaskFlow is Initializable, UUPSUpgradeable, AccessControlUpgradeabl
     }
 
     function failTask(address user, uint256 tokenId, uint256 taskId) external onlyRole(VALIDATOR_ROLE) {
+        require(aiGate.isConsoleOpen(user), "AI console not active");
         require(gtStaking.isStaked(user, tokenId), "GT not staked");
         bool unstaked = gtStaking.unstake(user, tokenId);
         require(unstaked, "Unstake failed");
