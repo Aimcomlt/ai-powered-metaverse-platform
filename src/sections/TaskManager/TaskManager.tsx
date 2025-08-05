@@ -1,10 +1,18 @@
 import React, { useEffect, useState } from 'react';
+import { ethers } from 'ethers';
+import { useDispatch } from 'react-redux';
 import aiService from '../../services/aiService';
+import { GTStaking } from '../../contracts';
+import type { TaskMetrics } from '../../contracts/types';
+import { updateMetrics } from '../../store/taskSlice';
 import './TaskManager.css';
 
-const TaskManager = () => {
-  const [tasks, setTasks] = useState([]);
+const STAKING_ADDRESS = '0x0000000000000000000000000000000000000000';
+
+const TaskManager: React.FC = () => {
+  const [tasks, setTasks] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -22,7 +30,22 @@ const TaskManager = () => {
     fetchTasks();
   }, []);
 
-  const handleTaskCompletion = (task) => {
+  useEffect(() => {
+    const fetchMetrics = async () => {
+      try {
+        const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
+        const staking = new GTStaking(STAKING_ADDRESS, provider);
+        const metrics = await staking.taskMetrics(1n) as TaskMetrics;
+        dispatch(updateMetrics({ taskId: 1, metrics }));
+      } catch (error) {
+        console.error('Error fetching task metrics:', error);
+      }
+    };
+
+    fetchMetrics();
+  }, [dispatch]);
+
+  const handleTaskCompletion = (task: string) => {
     // Handle task completion logic here
     console.log(`Task completed: ${task}`);
   };
@@ -47,3 +70,4 @@ const TaskManager = () => {
 };
 
 export default TaskManager;
+
