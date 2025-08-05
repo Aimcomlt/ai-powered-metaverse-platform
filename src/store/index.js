@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import gtReducer from './gtSlice';
 import taskReducer from './taskSlice';
 import aiReducer from './aiSlice';
+import aiMiddleware from './aiMiddleware';
 import {
   governanceTokenEventsReducer,
   functionalTokenEventsReducer,
@@ -31,4 +32,6 @@ export const store = configureStore({
     genesisBlockFactionEvents: genesisBlockFactionEventsReducer,
     genesisBlockFactoryEvents: genesisBlockFactoryEventsReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(aiMiddleware),
 });
