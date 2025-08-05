@@ -20,7 +20,7 @@ contract GenesisBlockFactory is AccessControl {
 
     event FactionCreated(
         string indexed name,
-        address faction,
+        address indexed faction,
         address indexed creator,
         string uri,
         uint256 timestamp
