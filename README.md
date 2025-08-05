@@ -44,6 +44,13 @@ npm install
 npx hardhat compile
 ```
 
+### Deployment
+
+Configure the following environment variables when deploying to define the blockchain connection:
+
+- `RPC_URL` – HTTP endpoint of the Ethereum network used if no injected provider is present.
+- `CHAIN_ID` – Network chain identifier corresponding to the RPC endpoint.
+
 ### Roles and Permissions
 Many contract interactions are restricted by Access Control roles. Common UI actions require the following roles:
 

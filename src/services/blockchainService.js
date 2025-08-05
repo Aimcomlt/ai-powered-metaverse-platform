@@ -1,9 +1,10 @@
-import { ethers } from 'ethers';
 import loadContract from '../contracts/loadContract';
+import { getSigner } from './provider';
 
-const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
-
-const getContract = (account) => loadContract('GovernanceToken', provider.getSigner(account));
+const getContract = async (account) => {
+  const signer = await getSigner(account);
+  return loadContract('GovernanceToken', signer);
+};
 
 // Function to upload metadata to IPFS
 export const uploadMetadataToIPFS = async (metadata) => {

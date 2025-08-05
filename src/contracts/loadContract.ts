@@ -1,6 +1,7 @@
-import { Contract, Signer, providers, ethers } from 'ethers';
+import { Contract, Signer, ethers } from 'ethers';
 import addresses from './metadata/addresses.json';
 import GovernanceToken from './metadata/GovernanceToken.json';
+import { getProvider } from '../services/provider';
 
 type AddressBook = Record<string, Record<string, string>>;
 const abis: Record<string, any> = {
@@ -9,11 +10,10 @@ const abis: Record<string, any> = {
 
 export async function loadContract(
   name: keyof typeof abis,
-  signerOrProvider: Signer | providers.Provider
+  signer?: Signer
 ): Promise<Contract> {
-  const network = await (signerOrProvider instanceof Signer
-    ? signerOrProvider.provider!.getNetwork()
-    : signerOrProvider.getNetwork());
+  const provider = signer?.provider ?? getProvider();
+  const network = await provider.getNetwork();
 
   const address = (addresses as AddressBook)[network.name]?.[name as string];
   if (!address) {
@@ -21,7 +21,7 @@ export async function loadContract(
   }
 
   const abi = abis[name as string];
-  return new ethers.Contract(address, abi, signerOrProvider);
+  return new ethers.Contract(address, abi, signer ?? provider);
 }
 
 export default loadContract;
