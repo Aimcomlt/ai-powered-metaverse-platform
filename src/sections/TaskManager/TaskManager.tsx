@@ -35,7 +35,7 @@ const TaskManager: React.FC = () => {
       try {
         const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
         const staking = new GTStaking(STAKING_ADDRESS, provider);
-        const metrics = await staking.taskMetrics(1n) as TaskMetrics;
+        const metrics: TaskMetrics = await staking.taskMetrics(1n);
         dispatch(updateMetrics({ taskId: 1, metrics }));
       } catch (error) {
         console.error('Error fetching task metrics:', error);
