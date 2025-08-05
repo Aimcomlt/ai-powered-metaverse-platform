@@ -47,9 +47,25 @@ contract HouseOfTheLaw is Initializable, AccessControlUpgradeable, UUPSUpgradeab
     mapping(uint256 => Proposal) public proposals;
     mapping(uint256 => mapping(address => uint256)) public votesCast;
 
-    event TaskRewarded(address indexed user, uint256 indexed taskId, uint256 ftId, uint256 ftAmount, uint256 gtReward);
-    event ProposalCreated(uint256 indexed proposalId, address indexed proposer, string ipfsHash);
-    event ProposalExecuted(uint256 indexed proposalId, address indexed executor, address indexed target, uint256 gtId);
+    event TaskRewarded(
+        address indexed user,
+        uint256 indexed taskId,
+        uint256 indexed ftId,
+        uint256 ftAmount,
+        uint256 gtReward
+    );
+    event ProposalCreated(
+        uint256 indexed proposalId,
+        address indexed proposer,
+        string ipfsHash,
+        uint256 indexed eligibleGTId
+    );
+    event ProposalExecuted(
+        uint256 indexed proposalId,
+        address indexed executor,
+        address target,
+        uint256 indexed gtId
+    );
     event Voted(uint256 indexed proposalId, address indexed voter, uint256 votes, uint256 cost, uint256 indexed gtId);
     event AlphaUpdated(uint256 oldAlpha, uint256 newAlpha, address indexed caller);
     event ReserveRatioUpdated(uint256 oldRatio, uint256 newRatio, address indexed caller);
@@ -156,7 +172,7 @@ contract HouseOfTheLaw is Initializable, AccessControlUpgradeable, UUPSUpgradeab
             eligibleGTId: eligibleGTId
         });
 
-        emit ProposalCreated(proposalId, msg.sender, ipfsHash);
+        emit ProposalCreated(proposalId, msg.sender, ipfsHash, eligibleGTId);
     }
 
     function vote(uint256 proposalId, uint256 votes) external {
