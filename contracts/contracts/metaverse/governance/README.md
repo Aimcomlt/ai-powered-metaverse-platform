@@ -78,7 +78,8 @@ Formula used to calculate FT reward:
 
 ```
 
-FT = (totalGT \* alpha \* (1 - reserveRatio)) / 10000²
+// GT reward from the validated task drives FT minting
+FT = (gtReward \* alpha \* (1 - reserveRatio)) / 10000²
 
 ````
 
