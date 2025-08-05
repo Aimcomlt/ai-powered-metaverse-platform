@@ -43,6 +43,16 @@ cd contracts
 npm install
 npx hardhat compile
 ```
+
+### Roles and Permissions
+Many contract interactions are restricted by Access Control roles. Common UI actions require the following roles:
+
+- **MINTER_ROLE** – needed to mint tokens such as `FunctionalToken.mint` or `GovernanceToken.mintGT`.
+- **REGISTRAR_ROLE** – required to register new names in the `MpNSRegistry`.
+- **VALIDATOR_ROLE** – required for task validation flows like `ProofOfObservation.validateTask` or `PoO_TaskFlow.rewardAfterTask`.
+- **DEFAULT_ADMIN_ROLE** – allows role management through `grantRole` and `revokeRole`.
+
+Ensure the connected wallet has the appropriate role before performing these actions in the UI.
 Scripts
 npm start: Runs the app in development mode.
 npm test: Launches the test runner.
