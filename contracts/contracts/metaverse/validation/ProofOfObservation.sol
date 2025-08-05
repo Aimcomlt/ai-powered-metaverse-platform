@@ -82,6 +82,17 @@ contract ProofOfObservation is Initializable, UUPSUpgradeable, AccessControlUpgr
         emit TaskValidated(msg.sender, submission.user, taskId, gtReward);
     }
 
+    /// @notice Returns true if the user has at least one validated task submission.
+    function isValidated(address user) external view returns (bool) {
+        uint256[] storage tasks = userTasks[user];
+        for (uint256 i = 0; i < tasks.length; i++) {
+            if (taskSubmissions[user][tasks[i]].validated) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     function _authorizeUpgrade(address newImplementation) internal override onlyRole(UPGRADER_ROLE) {}
 
     /// @dev Reserve storage space to allow layout changes in the future.
