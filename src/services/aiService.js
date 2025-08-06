@@ -60,6 +60,36 @@ export const proposeTasks = async (factionData) => {
     }
   };
 
+// Recommend proposals based on current task and faction state
+export const recommendProposals = async (state) => {
+  try {
+    const messages = [
+      {
+        role: "system",
+        content:
+          "You are a Codex agent that suggests improvement proposals. Respond in JSON with {\"proposals\": [{\"title\": string, \"details\": string}]}.",
+      },
+      {
+        role: "user",
+        content: `State: ${JSON.stringify(state)}`,
+      },
+    ];
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages,
+      temperature: 0.7,
+      max_tokens: 256,
+    });
+
+    const content = response.choices?.[0]?.message?.content || "{}";
+    return JSON.parse(content);
+  } catch (error) {
+    console.error('Error recommending proposals:', error);
+    throw error;
+  }
+};
+
   // Function to optimize documents
 export const optimizeDocument = async (document) => {
     try {
@@ -171,6 +201,36 @@ export const getMonitoringData = async () => {
     console.error('Error fetching monitoring data:', error);
     throw error;
   }
+  };
+
+// Observe current task status metrics
+export const observeTaskStatus = async (task) => {
+  try {
+    const messages = [
+      {
+        role: "system",
+        content:
+          "You are a Codex agent that summarizes task metrics. Respond in JSON with {\"status\": string, \"observations\": string}.",
+      },
+      {
+        role: "user",
+        content: `Task metrics: ${JSON.stringify(task)}`,
+      },
+    ];
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages,
+      temperature: 0.7,
+      max_tokens: 256,
+    });
+
+    const content = response.choices?.[0]?.message?.content || "{}";
+    return JSON.parse(content);
+  } catch (error) {
+    console.error('Error observing task status:', error);
+    throw error;
+  }
 };
 
 // Function for continuous learning from feedback
@@ -205,8 +265,10 @@ export default {
   analyzePolicy,
   allocateResources,
   getMonitoringData,
+  observeTaskStatus,
   initializeAIAgents,
   proposeTasks,
+  recommendProposals,
   optimizeDocument,
   learnFromFeedback
   // other functions

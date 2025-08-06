@@ -18,19 +18,30 @@ const aiMiddleware = (store) => (next) => async (action) => {
     const { tasks, currentTask, metrics } = store.getState().task;
 
     try {
-      const response = await aiService.proposeTasks({ tasks, currentTask, metrics });
+      const proposals = await aiService.recommendProposals({
+        tasks,
+        currentTask,
+        metrics,
+      });
+      if (proposals?.proposals) {
+        store.dispatch(setProposals(proposals.proposals));
+      }
 
-      if (response?.recommendations) {
-        store.dispatch(setRecommendations(response.recommendations));
+      const status = await aiService.observeTaskStatus({ currentTask, metrics });
+      if (status?.observations) {
+        store.dispatch(setTaskObservations(status.observations));
       }
-      if (response?.proposals) {
-        store.dispatch(setProposals(response.proposals));
+      if (status?.status) {
+        store.dispatch(setStatus(status.status));
       }
-      if (response?.taskObservations) {
-        store.dispatch(setTaskObservations(response.taskObservations));
-      }
-      if (response?.status) {
-        store.dispatch(setStatus(response.status));
+
+      const recommendations = await aiService.proposeTasks({
+        tasks,
+        currentTask,
+        metrics,
+      });
+      if (recommendations?.recommendations) {
+        store.dispatch(setRecommendations(recommendations.recommendations));
       }
     } catch (err) {
       console.error('AI service call failed', err);
