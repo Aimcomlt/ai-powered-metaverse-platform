@@ -18,6 +18,12 @@ Users stake GT to gain voting power and unlock higher reward tiers.
 Staked tokens are subject to lockup periods and can earn additional GT as staking rewards.
 Early withdrawal forfeits pending rewards.
 
+## Wallet Connection Reward
+
+Connecting a wallet is treated as an initial contribution to the ecosystem.
+A successful connection mints approximately 10 GT to the participant.
+These tokens are automatically staked, granting the user access to their first task.
+
 ## Proof of Observation
 
 User-submitted tasks are validated through the Proof of Observation (PoO) mechanism.
