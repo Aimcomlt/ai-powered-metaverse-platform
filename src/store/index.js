@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import gtReducer from './gtSlice';
 import taskReducer from './taskSlice';
 import aiReducer from './aiSlice';
+import walletReducer from './walletSlice';
 import aiMiddleware from './aiMiddleware';
 import {
   governanceTokenEventsReducer,
@@ -21,6 +22,7 @@ export const store = configureStore({
     gt: gtReducer,
     task: taskReducer,
     ai: aiReducer,
+    wallet: walletReducer,
     governanceTokenEvents: governanceTokenEventsReducer,
     functionalTokenEvents: functionalTokenEventsReducer,
     mpnsRegistryEvents: mpnsRegistryEventsReducer,
