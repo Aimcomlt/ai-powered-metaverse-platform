@@ -1,5 +1,10 @@
 import aiService from '../services/aiService';
-import { setRecommendations, setProposals, setStatus } from './aiSlice';
+import {
+  setRecommendations,
+  setProposals,
+  setTaskObservations,
+  setStatus,
+} from './aiSlice';
 import { setTasks, setCurrentTask, fetchTaskMetrics } from './taskSlice';
 
 const aiMiddleware = (store) => (next) => async (action) => {
@@ -20,6 +25,9 @@ const aiMiddleware = (store) => (next) => async (action) => {
       }
       if (response?.proposals) {
         store.dispatch(setProposals(response.proposals));
+      }
+      if (response?.taskObservations) {
+        store.dispatch(setTaskObservations(response.taskObservations));
       }
       if (response?.status) {
         store.dispatch(setStatus(response.status));
