@@ -14,6 +14,16 @@ import { setTasks } from './taskSlice';
 store.dispatch(setTasks([{ id: 1, title: 'Example Task' }]));
 ```
 
+### Reacting to Redux actions
+When task-related actions occur, `aiMiddleware` gathers the latest task context and calls the AI service. Depending on the response, it dispatches actions that update fields in the `ai` slice:
+
+- `setProposals` – fills in proposal suggestions for the current task.
+- `setTaskObservations` – records observations about task status.
+- `setStatus` – updates the AI's assessment of task progress.
+- `setRecommendations` – lists other tasks the user might pursue next.
+
+**Example flow:** user selects a task → `setCurrentTask` fires → `aiMiddleware` invokes the AI service → `setProposals` stores the results → the proposal list in the UI refreshes.
+
 ## AI Recommendations (`ai`)
 - **What it does:** stores AI generated suggestions for the user interface.
 - **Key action:** `setRecommendations`.
