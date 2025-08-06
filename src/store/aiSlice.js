@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
   recommendations: [],
   proposals: [],
+  taskObservations: [],
   status: null,
 };
 
@@ -16,11 +17,19 @@ const aiSlice = createSlice({
     setProposals(state, action) {
       state.proposals = action.payload;
     },
+    setTaskObservations(state, action) {
+      state.taskObservations = action.payload;
+    },
     setStatus(state, action) {
       state.status = action.payload;
     },
   },
 });
 
-export const { setRecommendations, setProposals, setStatus } = aiSlice.actions;
+export const {
+  setRecommendations,
+  setProposals,
+  setTaskObservations,
+  setStatus,
+} = aiSlice.actions;
 export default aiSlice.reducer;
