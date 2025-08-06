@@ -42,6 +42,6 @@ Usage consumes FT credits; additional staking enables extended or higher-priorit
 ## Task Reward Flows
 
 1. A participant completes a task and submits results to PoO.
-2. Validators confirm the task and signal reward distribution.
-3. FT rewards are minted to the participant; a portion may be routed to staking pools.
-4. GT bonuses are issued to stakers who support governance or validation efforts.
+2. Validators call [`ProofOfObservation.validateTask`](../contracts/contracts/metaverse/validation/ProofOfObservation.sol) to record a valid submission.
+3. The [`PoO_TaskFlow` contract](../contracts/contracts/metaverse/validation/PoO_TaslkFlow.sol) confirms the validated task via `rewardAfterTask` and checks the user's staked GT.
+4. `PoO_TaskFlow` unstakes the GT and mints FT/GT rewards according to the platform's reward matrix.
