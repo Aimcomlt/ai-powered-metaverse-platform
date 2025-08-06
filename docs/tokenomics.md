@@ -24,6 +24,11 @@ Connecting a wallet is treated as an initial contribution to the ecosystem.
 A successful connection mints approximately 10 GT to the participant.
 These tokens are automatically staked, granting the user access to their first task.
 
+## GT Tagging
+
+Every minted GT is tagged with the participant's level, contribution type, and faction.
+These tags let a wallet serve as a ledger of a user's accomplishments across the platform.
+
 ## Proof of Observation
 
 User-submitted tasks are validated through the Proof of Observation (PoO) mechanism.
