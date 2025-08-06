@@ -2,6 +2,18 @@
 
 This directory houses Redux slices that hold application state for the AI‑Powered Metaverse Platform. Each section below explains what a slice tracks, when it changes, and how it ties into smart contracts and the interface.
 
+## AI Middleware
+The store combines all slices using `configureStore` and extends the default middleware with `aiMiddleware`. This middleware listens for task updates and, through `aiService`, dispatches AI-related actions such as recommendations and task status observations.
+
+```javascript
+import { store } from './index';
+import { setTasks } from './taskSlice';
+
+// When tasks change, aiMiddleware invokes aiService and dispatches
+// setProposals, setTaskObservations, setStatus, and setRecommendations.
+store.dispatch(setTasks([{ id: 1, title: 'Example Task' }]));
+```
+
 ## AI Recommendations (`ai`)
 - **What it does:** stores AI generated suggestions for the user interface.
 - **Key action:** `setRecommendations`.

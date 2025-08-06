@@ -32,6 +32,6 @@ export const store = configureStore({
     genesisBlockFactionEvents: genesisBlockFactionEventsReducer,
     genesisBlockFactoryEvents: genesisBlockFactoryEventsReducer,
   },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(aiMiddleware),
+  middleware: (getDefault) =>
+    getDefault().concat(aiMiddleware),
 });
