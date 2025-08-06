@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchTaskMetrics, setCurrentTask } from '../../store/taskSlice';
 import taskService from '../../services/taskService';
 import usePoOFlow from '../../hooks/usePoOFlow';
+import TaskMetricsCard from './TaskMetricsCard';
 
 interface Task {
   id: number;
@@ -99,8 +100,16 @@ const TaskBrowser: React.FC<TaskBrowserProps> = ({ userAddress }) => {
               key={task.id}
               className="flex items-center justify-between border p-2 rounded"
             >
-              <div>
-                <h3 className="font-semibold">{task.title || `Task #${task.id}`}</h3>
+              <div className="flex-1 mr-4">
+                <h3 className="font-semibold mb-2">
+                  {task.title || `Task #${task.id}`}
+                </h3>
+                {metrics[task.id] && (
+                  <TaskMetricsCard
+                    progress={Number((metrics[task.id] as any).progress ?? (metrics[task.id] as any).demand ?? 0)}
+                    reward={Number((metrics[task.id] as any).reward ?? (metrics[task.id] as any).supply ?? 0)}
+                  />
+                )}
               </div>
               {!completed.has(task.id) && (
                 <button
