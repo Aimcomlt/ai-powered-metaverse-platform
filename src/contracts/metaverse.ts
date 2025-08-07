@@ -70,6 +70,19 @@ export class MpNSRegistry extends Contract {
   }
 }
 
+export class FactionCharterRegistry extends Contract {
+  static readonly abi = [
+    'function registerCharter(address factionAddress,string factionName,string ipfsHash,bool immutableFlag)',
+    'function getCharter(address factionAddress) view returns (tuple(string faction,string ipfsHash,bool immutableGenesis))',
+    'function getCharterByName(string factionName) view returns (tuple(string faction,string ipfsHash,bool immutableGenesis))',
+    'function genesisFaction() view returns (address)',
+    'event CharterRegistered(address indexed factionAddress,string indexed faction,string ipfsHash,bool immutableGenesis)',
+  ] as const;
+  constructor(address: string, signerOrProvider: Signer | providers.Provider) {
+    super(address, FactionCharterRegistry.abi, signerOrProvider);
+  }
+}
+
 export class CrossFactionHub extends Contract {
   static readonly abi = [
     'function initialize(address governanceToken_,address poO_,uint256 tokenIdForVoting,address mpnsRegistry_)',

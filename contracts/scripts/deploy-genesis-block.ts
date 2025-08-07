@@ -13,6 +13,13 @@ const save = (n: string, a: string) => {
 };
 
 async function main() {
+  if (!d.FactionCharterRegistry) {
+    const FCR = await ethers.getContractFactory('FactionCharterRegistry');
+    const fcr = await FCR.deploy();
+    await fcr.waitForDeployment();
+    save('FactionCharterRegistry', await fcr.getAddress());
+    console.log('FactionCharterRegistry:', await fcr.getAddress());
+  }
   if (!d.GenesisBlockFactionImpl) {
     const Faction = await ethers.getContractFactory('GenesisBlockFaction');
     const impl = await upgrades.deployImplementation(Faction);

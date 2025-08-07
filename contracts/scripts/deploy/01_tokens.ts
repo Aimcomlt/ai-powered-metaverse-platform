@@ -25,5 +25,12 @@ async function main() {
     await r.waitForDeployment(); save('MpNSRegistry', await r.getAddress());
     console.log('MpNSRegistry:', await r.getAddress());
   }
+  if (!d.FactionCharterRegistry) {
+    const FCR = await ethers.getContractFactory('FactionCharterRegistry');
+    const fcr = await FCR.deploy();
+    await fcr.waitForDeployment();
+    save('FactionCharterRegistry', await fcr.getAddress());
+    console.log('FactionCharterRegistry:', await fcr.getAddress());
+  }
 }
 main().catch(console.error);
