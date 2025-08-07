@@ -14,7 +14,12 @@ interface ITokenFactory {
 }
 
 interface IFactionCharterRegistry {
-    function registerCharter(address faction, string calldata uri) external;
+    function registerCharter(
+        address faction,
+        string calldata factionName,
+        string calldata ipfsHash,
+        bool immutableGenesis
+    ) external;
 }
 
 interface IMpNSRegistry {
@@ -52,6 +57,7 @@ contract GenesisFaction is Initializable, AccessControlUpgradeable, UUPSUpgradea
         address charterRegistry_,
         address mpns_,
         address agentOps_,
+        string calldata factionName,
         string calldata charterUri,
         string[] calldata handles,
         address[] calldata agents,
@@ -72,7 +78,7 @@ contract GenesisFaction is Initializable, AccessControlUpgradeable, UUPSUpgradea
         _grantRole(COUNCIL_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
 
-        charterRegistry.registerCharter(address(this), charterUri);
+        charterRegistry.registerCharter(address(this), factionName, charterUri, immutableGenesis);
         emit CharterRegistered(charterUri);
 
         for (uint256 i = 0; i < handles.length; i++) {
