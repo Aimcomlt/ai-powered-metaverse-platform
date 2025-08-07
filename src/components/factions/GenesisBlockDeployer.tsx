@@ -14,6 +14,7 @@ const GenesisBlockDeployer: React.FC<GenesisBlockDeployerProps> = ({ account }) 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [txHash, setTxHash] = useState<string | null>(null);
+  const [agentFile, setAgentFile] = useState<File | null>(null);
 
   const { metadata, immutableGenesis, agentHandles } = useCharterMetadata(name);
 
@@ -25,8 +26,12 @@ const GenesisBlockDeployer: React.FC<GenesisBlockDeployerProps> = ({ account }) 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!agentFile) {
+      alert('Please upload an AGENTS.md file');
+      return;
+    }
     try {
-      const { tx, faction } = await deployFaction(name);
+      const { tx, faction } = await deployFaction(name, agentFile);
       setTxHash(tx.hash);
       dispatch(
         addGenesisBlockFactoryEvent({
@@ -58,6 +63,13 @@ const GenesisBlockDeployer: React.FC<GenesisBlockDeployerProps> = ({ account }) 
           onChange={(e) => setDescription(e.target.value)}
           className="border p-2 w-full"
           rows={4}
+        />
+        <input
+          type="file"
+          accept=".md"
+          onChange={(e) => setAgentFile(e.target.files ? e.target.files[0] : null)}
+          className="border p-2 w-full"
+          required
         />
         <button
           type="submit"
