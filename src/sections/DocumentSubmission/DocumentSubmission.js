@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import ipfsService from '../../services/ipfsService';
+import AgentMdUploader from '../../components/AgentMdUploader';
 import './DocumentSubmission.css';
 
 const DocumentSubmission = () => {
@@ -71,6 +72,7 @@ const DocumentSubmission = () => {
           <p>{uploadedHash}</p>
         </div>
       )}
+      <AgentMdUploader />
     </div>
   );
 };
