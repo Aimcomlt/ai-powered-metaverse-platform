@@ -1,0 +1,18 @@
+[
+  "function initialize()",
+  "function register(string name,address owner,uint256 duration,string uri)",
+  "function updateURI(string name,string newUri)",
+  "function transfer(string name,address newOwner)",
+  "function freezeName(string name)",
+  "function ownerOf(string name) view returns (address)",
+  "function expirationOf(string name) view returns (uint256)",
+  "function nameToUri(string name) view returns (string)",
+  "function isFrozen(string name) view returns (bool)",
+  "function grantRole(bytes32 role,address account)",
+  "function revokeRole(bytes32 role,address account)",
+  "function hasRole(bytes32 role,address account) view returns (bool)",
+  "event NameRegistered(string indexed name,address indexed owner,uint256 expiration,string uri)",
+  "event URIUpdated(string indexed name,string oldUri,string newUri)",
+  "event NameTransferred(string indexed name,address indexed oldOwner,address indexed newOwner)",
+  "event NameFrozen(string indexed name)"
+]
