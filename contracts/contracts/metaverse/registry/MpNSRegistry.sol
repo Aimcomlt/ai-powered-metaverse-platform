@@ -13,12 +13,15 @@ import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/acce
 contract MpNSRegistry is Initializable, UUPSUpgradeable, AccessControlUpgradeable {
     bytes32 public constant REGISTRAR_ROLE = keccak256("REGISTRAR_ROLE");
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
+    bytes32 public constant GENESIS_GOVERNANCE_ROLE =
+        keccak256("GENESIS_GOVERNANCE_ROLE");
 
     struct NameRecord {
         address owner;
         uint256 expiration;
         string uri; // IPFS or metadata pointer
         bool frozen; // once true, name cannot be updated or transferred again
+        bool isGenesis; // true if reserved for Genesis governance
     }
 
     mapping(string => NameRecord) private _records;
@@ -39,6 +42,7 @@ contract MpNSRegistry is Initializable, UUPSUpgradeable, AccessControlUpgradeabl
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(REGISTRAR_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
+        _grantRole(GENESIS_GOVERNANCE_ROLE, msg.sender);
     }
 
     /**
@@ -54,7 +58,37 @@ contract MpNSRegistry is Initializable, UUPSUpgradeable, AccessControlUpgradeabl
             owner: owner,
             expiration: block.timestamp + duration,
             uri: uri,
-            frozen: false
+            frozen: false,
+            isGenesis: false
+        });
+
+        emit NameRegistered(name, owner, block.timestamp + duration, uri);
+    }
+
+    /**
+     * @notice Registers a new Genesis name.
+     * @dev Similar to {register} but marks the record as Genesis reserved.
+     */
+    function registerGenesis(
+        string calldata name,
+        address owner,
+        uint256 duration,
+        string calldata uri
+    ) external onlyRole(REGISTRAR_ROLE) {
+        require(owner != address(0), "Invalid owner");
+        require(bytes(name).length > 0, "Name required");
+        require(
+            _records[name].owner == address(0) ||
+                _records[name].expiration < block.timestamp,
+            "Name not available"
+        );
+
+        _records[name] = NameRecord({
+            owner: owner,
+            expiration: block.timestamp + duration,
+            uri: uri,
+            frozen: false,
+            isGenesis: true
         });
 
         emit NameRegistered(name, owner, block.timestamp + duration, uri);
@@ -66,9 +100,10 @@ contract MpNSRegistry is Initializable, UUPSUpgradeable, AccessControlUpgradeabl
      */
     function updateURI(string calldata name, string calldata newUri) external {
         NameRecord storage record = _records[name];
-        require(record.owner == msg.sender, "Not name owner");
+        require(record.owner == msg.sender || hasRole(GENESIS_GOVERNANCE_ROLE, msg.sender), "Not name owner");
         require(record.expiration >= block.timestamp, "Name expired");
         require(!record.frozen, "Name is frozen");
+        require(!record.isGenesis || hasRole(GENESIS_GOVERNANCE_ROLE, msg.sender), "Genesis governance only");
 
         string memory oldUri = record.uri;
         record.uri = newUri;
@@ -84,9 +119,10 @@ contract MpNSRegistry is Initializable, UUPSUpgradeable, AccessControlUpgradeabl
         require(newOwner != address(0), "Invalid owner");
 
         NameRecord storage record = _records[name];
-        require(record.owner == msg.sender, "Not name owner");
+        require(record.owner == msg.sender || hasRole(GENESIS_GOVERNANCE_ROLE, msg.sender), "Not name owner");
         require(record.expiration >= block.timestamp, "Name expired");
         require(!record.frozen, "Name is frozen");
+        require(!record.isGenesis || hasRole(GENESIS_GOVERNANCE_ROLE, msg.sender), "Genesis governance only");
 
         address oldOwner = record.owner;
         record.owner = newOwner;
@@ -130,6 +166,10 @@ contract MpNSRegistry is Initializable, UUPSUpgradeable, AccessControlUpgradeabl
 
     function isFrozen(string calldata name) external view returns (bool) {
         return _records[name].frozen;
+    }
+
+    function isGenesis(string calldata name) external view returns (bool) {
+        return _records[name].isGenesis;
     }
 
     function _authorizeUpgrade(address newImplementation) internal override onlyRole(UPGRADER_ROLE) {}
