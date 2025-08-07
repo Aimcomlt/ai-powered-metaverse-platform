@@ -1,5 +1,6 @@
 import React from 'react';
 import useVote from '../../hooks/useVote';
+import useGtValidation from '../../hooks/useGtValidation';
 
 interface VotePanelProps {
   proposalId: number;
@@ -7,10 +8,19 @@ interface VotePanelProps {
 }
 
 const VotePanel: React.FC<VotePanelProps> = ({ proposalId, userAddress }) => {
+  const hasGt = useGtValidation(1);
   const { voteYes, voteNo, abstain, loading, error, lastVote } = useVote(
     proposalId,
     userAddress,
   );
+
+  if (!hasGt) {
+    return (
+      <div className="p-4 border rounded text-gray-500">
+        Governance tokens are required to vote on proposals.
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 border rounded">

@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchTaskMetrics, setCurrentTask } from '../../store/taskSlice';
 import taskService from '../../services/taskService';
 import usePoOFlow from '../../hooks/usePoOFlow';
+import useGtValidation from '../../hooks/useGtValidation';
 import TaskMetricsCard from './TaskMetricsCard';
 
 interface Task {
@@ -16,6 +17,7 @@ interface TaskBrowserProps {
 }
 
 const TaskBrowser: React.FC<TaskBrowserProps> = ({ userAddress }) => {
+  const hasGt = useGtValidation(1);
   const dispatch = useDispatch();
   const tasks: Task[] = useSelector((state: any) => state.task.tasks);
   const metrics = useSelector((state: any) => state.task.metrics);
@@ -24,14 +26,16 @@ const TaskBrowser: React.FC<TaskBrowserProps> = ({ userAddress }) => {
   const { rewardAfterTask, loading: rewarding } = usePoOFlow(userAddress);
 
   useEffect(() => {
+    if (!hasGt) return;
     tasks.forEach((task) => {
       if (!metrics[task.id]) {
         dispatch(fetchTaskMetrics(task.id));
       }
     });
-  }, [tasks, metrics, dispatch]);
+  }, [tasks, metrics, dispatch, hasGt]);
 
   useEffect(() => {
+    if (!hasGt) return;
     // Example placeholder to show how a service could fetch tasks
     // Real implementation would call an API or contract here
     if (!tasks || tasks.length === 0) {
@@ -43,7 +47,7 @@ const TaskBrowser: React.FC<TaskBrowserProps> = ({ userAddress }) => {
         }
       })();
     }
-  }, [tasks]);
+  }, [tasks, hasGt]);
 
   const filteredTasks = tasks.filter((task) => {
     if (filter === 'completed') return completed.has(task.id);
@@ -68,6 +72,14 @@ const TaskBrowser: React.FC<TaskBrowserProps> = ({ userAddress }) => {
       console.error('Reward failed', err);
     }
   };
+
+  if (!hasGt) {
+    return (
+      <div className="p-4 text-gray-500">
+        Governance token balance required to access tasks.
+      </div>
+    );
+  }
 
   return (
     <div className="p-4">
