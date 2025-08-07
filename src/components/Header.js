@@ -18,6 +18,7 @@ const Header = () => {
         <Link to="/feedback">Feedback</Link>
         <Link to="/governance">Governance</Link>
         <Link to="/projects">Projects</Link>
+        <Link to="/house-of-code/tasks">House of Code Tasks</Link>
       </nav>
       <button className="toggle-button" onClick={toggleNav}>
         {isNavVisible ? '<<' : '>>'}
