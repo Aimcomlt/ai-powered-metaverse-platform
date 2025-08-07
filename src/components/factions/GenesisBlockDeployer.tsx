@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import useFactionDeploy from '../../hooks/useFactionDeploy';
 import { addGenesisBlockFactoryEvent } from '../../store/eventSlices';
+import useCharterMetadata from '../../hooks/useCharterMetadata';
 
 interface GenesisBlockDeployerProps {
   account: string;
@@ -11,7 +12,16 @@ const GenesisBlockDeployer: React.FC<GenesisBlockDeployerProps> = ({ account }) 
   const dispatch = useDispatch();
   const { deployFaction, loading, error, factionAddress } = useFactionDeploy(account);
   const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
   const [txHash, setTxHash] = useState<string | null>(null);
+
+  const { metadata, immutableGenesis, agentHandles } = useCharterMetadata(name);
+
+  useEffect(() => {
+    if (metadata?.description) {
+      setDescription(metadata.description);
+    }
+  }, [metadata]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,6 +52,13 @@ const GenesisBlockDeployer: React.FC<GenesisBlockDeployerProps> = ({ account }) 
           className="border p-2 w-full"
           required
         />
+        <textarea
+          placeholder="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="border p-2 w-full"
+          rows={4}
+        />
         <button
           type="submit"
           disabled={loading}
@@ -50,6 +67,18 @@ const GenesisBlockDeployer: React.FC<GenesisBlockDeployerProps> = ({ account }) 
           {loading ? 'Deploying...' : 'Deploy'}
         </button>
       </form>
+      {immutableGenesis !== null && (
+        <div className="mt-2">
+          <span className="font-semibold">Immutable Genesis:</span>{' '}
+          {immutableGenesis ? 'Yes' : 'No'}
+        </div>
+      )}
+      {agentHandles.length > 0 && (
+        <div className="mt-2">
+          <span className="font-semibold">Agent Handles:</span>{' '}
+          {agentHandles.join(', ')}
+        </div>
+      )}
       {txHash && (
         <div className="mt-4">
           <span className="font-semibold">Transaction Hash:</span> {txHash}
