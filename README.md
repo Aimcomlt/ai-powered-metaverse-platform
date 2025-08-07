@@ -50,6 +50,8 @@ Configure the following environment variables when deploying to define the block
 
 - `RPC_URL` – HTTP endpoint of the Ethereum network used if no injected provider is present.
 - `CHAIN_ID` – Network chain identifier corresponding to the RPC endpoint.
+- `MPNS_REGISTRY_ADDRESS` – Address of the deployed `MpNSRegistry` used by scripts and tests.
+- `REACT_APP_MPNS_REGISTRY_ADDRESS` – Same address exposed to the React front end (use the `REACT_APP_` or `NEXT_PUBLIC_` prefix so it is available in the browser).
 
 ### Roles and Permissions
 Many contract interactions are restricted by Access Control roles. Common UI actions require the following roles:
@@ -59,7 +61,7 @@ Many contract interactions are restricted by Access Control roles. Common UI act
 - **VALIDATOR_ROLE** – required for task validation flows like `ProofOfObservation.validateTask` or `PoO_TaskFlow.rewardAfterTask`.
 - **DEFAULT_ADMIN_ROLE** – allows role management through `grantRole` and `revokeRole`.
 
-Ensure the connected wallet has the appropriate role before performing these actions in the UI.
+Roles are granted by an account holding `DEFAULT_ADMIN_ROLE` (typically a DAO multisig). Request the needed role from the administrator or execute `grantRole(<ROLE>, <address>)` using an admin account. Ensure the connected wallet has the appropriate role before performing these actions in the UI.
 Scripts
 npm start: Runs the app in development mode.
 npm test: Launches the test runner.
