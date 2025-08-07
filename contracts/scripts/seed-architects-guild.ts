@@ -3,46 +3,42 @@ import { ethers, network } from 'hardhat';
 import fs from 'fs';
 import path from 'path';
 
-const names = [
-  'AGENT.architects-guild.charter.mpns',
-  'AGENT.chartermentor.gpt.md',
-  'AGENT.token-audit.gpt.md',
-  'AGENT.faction-template.content-creator.mpns',
-  'AGENT.faction-template.labelDAO.mpns'
-];
+interface AgentSpec {
+  handle: string;
+  fileType: string;
+  ipfsHash: string;
+}
 
-async function uploadPlaceholder(): Promise<string> {
-  // Optional IPFS upload for placeholder metadata
-  const endpoint = process.env.IPFS_API_ENDPOINT;
-  if (!endpoint) return 'ipfs://placeholder';
-  try {
-    const body = new URLSearchParams();
-    body.set('data', JSON.stringify({ note: 'placeholder' }));
-    const res = await fetch(`${endpoint}/api/v0/add`, { method: 'POST', body });
-    const data = await res.json();
-    return data.Hash ? `ipfs://${data.Hash}` : 'ipfs://placeholder';
-  } catch (e) {
-    console.warn('IPFS upload failed, using placeholder URI');
-    return 'ipfs://placeholder';
+function buildName(handle: string, fileType: string): string {
+  const first = handle.indexOf('-');
+  const second = handle.indexOf('-', first + 1);
+  let base = handle;
+  if (second !== -1) {
+    base = handle.slice(0, second) + '.' + handle.slice(second + 1);
   }
+  return `AGENT.${base}.${fileType}`;
 }
 
 export default async function seedArchitectsGuild() {
-  const file = path.join(__dirname, '..', 'deployments', `${network.name}.json`);
-  const d = fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : {};
+  const deploymentsFile = path.join(__dirname, '..', 'deployments', `${network.name}.json`);
+  const d = fs.existsSync(deploymentsFile) ? JSON.parse(fs.readFileSync(deploymentsFile, 'utf8')) : {};
   if (!d.MpNSRegistry) {
     throw new Error('MpNSRegistry address not found in deployments');
   }
+  const agentsPath = path.join(__dirname, '..', '..', 'agents', 'architects-guild', 'agents.json');
+  const agents: AgentSpec[] = JSON.parse(fs.readFileSync(agentsPath, 'utf8'));
+
   const [deployer] = await ethers.getSigners();
   const registry = await ethers.getContractAt('MpNSRegistry', d.MpNSRegistry);
-  const uri = await uploadPlaceholder();
   const duration = 365n * 24n * 60n * 60n; // 1 year
 
-  for (const name of names) {
+  for (const agent of agents) {
+    const name = buildName(agent.handle, agent.fileType);
     const owner = await registry.ownerOf(name);
     if (owner === ethers.ZeroAddress) {
-      await (await registry.register(name, deployer.address, duration, uri)).wait();
-      console.log(`Registered ${name}`);
+      const uri = `ipfs://${agent.ipfsHash}`;
+      await (await registry.registerGenesis(name, deployer.address, duration, uri)).wait();
+      console.log(`Registered genesis ${name}`);
     }
     const frozen = await registry.isFrozen(name);
     if (!frozen) {

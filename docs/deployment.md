@@ -19,3 +19,14 @@ Placeholder steps for contract verification.
 
 Placeholder for required environment variable configuration.
 
+## Genesis Agent Seeding
+
+The bootstrap process seeds the Architects Guild with genesis agent handles.
+Run the following during deployment:
+
+```
+npx hardhat run scripts/deploy-genesis-block.ts
+```
+
+This invokes `scripts/seed-architects-guild.ts`, which reads `agents/architects-guild/agents.json`, registers each handle via the registry's `registerGenesis` function, and freezes the names so `isGenesis` remains true.
+
