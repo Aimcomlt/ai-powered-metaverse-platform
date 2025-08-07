@@ -1,0 +1,37 @@
+[
+  {
+    "handle": "architects-guild-charter",
+    "description": "Genesis charter for the Architects Guild.",
+    "fileType": "mpns",
+    "ipfsHash": "QmArchitectsGuildCharter",
+    "version": "1.0.0"
+  },
+  {
+    "handle": "chartermentor",
+    "description": "Mentor charter for the Genesis program.",
+    "fileType": "gpt.md",
+    "ipfsHash": "QmCharterMentor",
+    "version": "1.0.0"
+  },
+  {
+    "handle": "token-audit",
+    "description": "Initial token audit.",
+    "fileType": "gpt.md",
+    "ipfsHash": "QmTokenAudit",
+    "version": "1.0.0"
+  },
+  {
+    "handle": "faction-template-content-creator",
+    "description": "Template for content creator faction.",
+    "fileType": "mpns",
+    "ipfsHash": "QmFactionTemplateContentCreator",
+    "version": "1.0.0"
+  },
+  {
+    "handle": "faction-template-labelDAO",
+    "description": "Template for labelDAO faction.",
+    "fileType": "mpns",
+    "ipfsHash": "QmFactionTemplateLabelDAO",
+    "version": "1.0.0"
+  }
+]
