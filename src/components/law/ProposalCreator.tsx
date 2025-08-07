@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import useCreateProposal from '../../hooks/useCreateProposal';
+import useGtValidation from '../../hooks/useGtValidation';
 
 const ProposalCreator: React.FC = () => {
   const isValidated = useSelector((state: any) => state.ai?.status === 'validated');
+  const hasGt = useGtValidation(1);
   const { createProposal, loading, error, success } = useCreateProposal();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -21,8 +23,20 @@ const ProposalCreator: React.FC = () => {
     }
   };
 
+  if (!hasGt) {
+    return (
+      <div className="text-gray-500">
+        Governance token balance insufficient to create proposals.
+      </div>
+    );
+  }
+
   if (!isValidated) {
-    return <div className="text-gray-500">AI assistant validation required to create proposals.</div>;
+    return (
+      <div className="text-gray-500">
+        AI assistant validation required to create proposals.
+      </div>
+    );
   }
 
   return (
