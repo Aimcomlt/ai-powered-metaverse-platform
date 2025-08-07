@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { ethers, upgrades, network } from 'hardhat';
 import fs from 'fs';
 import path from 'path';
+import seedArchitectsGuild from './seed-architects-guild';
 
 const file = path.join(__dirname, '..', 'deployments', `${network.name}.json`);
 const dir = path.dirname(file);
@@ -13,6 +14,7 @@ const save = (n: string, a: string) => {
 };
 
 async function main() {
+  await seedArchitectsGuild();
   if (!d.FactionCharterRegistry) {
     const FCR = await ethers.getContractFactory('FactionCharterRegistry');
     const fcr = await FCR.deploy();
