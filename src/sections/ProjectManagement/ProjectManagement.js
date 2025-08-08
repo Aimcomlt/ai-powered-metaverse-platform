@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import aiService from '../../services/aiService';
+import aiService from '../../services/ai';
 import Loader from '../../components/Loader';
 import { useToast } from '../../components/ToastProvider';
 import './ProjectManagement.css';

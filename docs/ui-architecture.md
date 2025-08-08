@@ -13,7 +13,7 @@ These components interact with Redux slices like `gt`, `task`, and `ai` and call
 
 ## Services
 Modules in `src/services/` abstract side effects. Examples include:
-- **aiService** for OpenAI calls invoked via `aiMiddleware`.
+- **ai** for AI provider calls invoked via `aiMiddleware`.
 - **gtService** and **houseOfTheLawService** for contract interactions.
 - **eventListeners** which push blockchain events into Redux.
 They provide a thin layer between UI logic and external systems, keeping components focused on rendering.

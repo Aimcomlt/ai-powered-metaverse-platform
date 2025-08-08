@@ -2,11 +2,11 @@
 
 This directory contains helper modules that encapsulate API calls, smart contract interactions, and other side-effect logic. Each service entry below outlines its purpose, Redux slice connections, reliance on smart contracts or AI, and areas where functionality can be extended.
 
-## aiService.js
-- **Purpose:** Wrapper around OpenAI APIs to initialize agents, propose tasks, recommend proposals, optimize documents, and observe task metrics.
+## ai
+- **Purpose:** Provides an abstraction over AI providers (OpenAI by default) to initialize agents, propose tasks, recommend proposals, optimize documents, and observe task metrics.
 - **Redux slices:** Used by `aiMiddleware` which dispatches to the `ai` slice.
-- **Smart contracts or AI:** Calls the OpenAI API (AI interactions only).
-- **Extension points:** Support additional AI endpoints or fine-tune parameters such as model or temperature.
+- **Smart contracts or AI:** Calls the configured AI provider (OpenAI interactions only by default).
+- **Extension points:** Add new providers or fine-tune parameters such as model or temperature.
 
 ## blockchainService.js
 - **Purpose:** Utility for governance token operations and IPFS metadata handling.

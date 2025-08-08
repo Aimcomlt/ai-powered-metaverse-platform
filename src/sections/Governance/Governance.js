@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import aiService from '../../services/aiService';
+import aiService from '../../services/ai';
 import './Governance.css';
 
 const Governance = () => {
