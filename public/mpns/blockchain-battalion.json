@@ -1,0 +1,25 @@
+{
+  "title": "Blockchain Battalion",
+  "description": "Exploring and developing the next generation of blockchain technologies and smart contracts.",
+  "charter": [
+    "The Blockchain Battalion Charter establishes the foundation for our operations, governance, and strategic objectives. Our primary aim is to foster innovation in blockchain technology through collaborative efforts, education, and real-world applications. We uphold the principles of decentralization, transparency, and security as we navigate the evolving landscape of blockchain and digital assets.",
+    "The governance structure includes a decentralized decision-making process, ensuring all members have a voice. Regular meetings, voting on proposals, and community engagement are key components of our governance framework."
+  ],
+  "mission": [
+    "Our mission is to advance the development and application of blockchain technology by providing a platform for education, innovation, and collaboration. We aim to create an ecosystem where developers, researchers, and enthusiasts can come together to share knowledge, develop new technologies, and drive the adoption of blockchain solutions across various industries.",
+    "By focusing on cutting-edge research and practical implementations, we strive to be at the forefront of the blockchain revolution, contributing to the broader community and influencing the future of decentralized technologies."
+  ],
+  "focus": {
+    "intro": "Our focus areas include:",
+    "areas": [
+      "Developing secure and scalable blockchain protocols",
+      "Advancing smart contract technology and programming",
+      "Creating decentralized applications (DApps) with real-world utility",
+      "Exploring interoperability between different blockchain networks",
+      "Enhancing blockchain security and privacy",
+      "Promoting blockchain education and community engagement"
+    ],
+    "summary": "Through these focus areas, we aim to address current challenges in the blockchain space and drive forward the adoption of innovative solutions that can transform industries and create new opportunities."
+  },
+  "courseLink": "/blockchain-battalion/course"
+}

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import { getProvider } from '../services/provider';
 import MpNSRegistryAbi from '../abis/MpNSRegistry.json';
+import localRecords from '../data/mpns.json';
 
 export type MpnsResolution = {
   type: 'contract' | 'ipfs' | 'empty';
@@ -21,35 +22,39 @@ export const useMpns = (name?: string) => {
 
   const resolve = useCallback(
     async (lookup: string): Promise<MpnsResolution> => {
-      if (!registryAddress || !lookup) {
+      if (!lookup) {
         const empty: MpnsResolution = { type: 'empty', value: '' };
         setResult(empty);
         return empty;
       }
-      try {
-        const registry = new ethers.Contract(
-          registryAddress,
-          MpNSRegistryAbi,
-          provider,
-        );
-        const uri: string = await registry.nameToUri(lookup);
-        let res: MpnsResolution;
-        if (!uri) {
-          res = { type: 'empty', value: '' };
-        } else if (/^0x[a-fA-F0-9]{40}$/.test(uri)) {
-          res = { type: 'contract', value: uri };
-        } else if (uri.startsWith('ipfs://') || uri.includes('/ipfs/')) {
-          res = { type: 'ipfs', value: uri };
-        } else {
-          res = { type: 'empty', value: uri };
+      let uri: string | undefined;
+      if (registryAddress) {
+        try {
+          const registry = new ethers.Contract(
+            registryAddress,
+            MpNSRegistryAbi,
+            provider,
+          );
+          uri = await registry.nameToUri(lookup);
+        } catch {
+          uri = undefined;
         }
-        setResult(res);
-        return res;
-      } catch {
-        const empty: MpnsResolution = { type: 'empty', value: '' };
-        setResult(empty);
-        return empty;
       }
+      if (!uri) {
+        uri = (localRecords as Record<string, string>)[lookup];
+      }
+      let res: MpnsResolution;
+      if (!uri) {
+        res = { type: 'empty', value: '' };
+      } else if (/^0x[a-fA-F0-9]{40}$/.test(uri)) {
+        res = { type: 'contract', value: uri };
+      } else if (uri.startsWith('ipfs://') || uri.includes('/ipfs/')) {
+        res = { type: 'ipfs', value: uri };
+      } else {
+        res = { type: 'empty', value: uri };
+      }
+      setResult(res);
+      return res;
     },
     [registryAddress, provider],
   );
