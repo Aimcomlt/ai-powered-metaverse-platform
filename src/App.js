@@ -14,6 +14,7 @@ const AIArchitect = lazy(() => import('./pages/AIArchitect'));
 const AICourse = lazy(() => import('./pages/AICourse'));
 const IoTInnovator = lazy(() => import('./pages/IoTInnovator'));
 const IoTCourse = lazy(() => import('./pages/IoTCourse'));
+const GenesisFaction = lazy(() => import('./pages/GenesisFaction'));
 const HouseOfCodeTasks = lazy(() => import('./pages/HouseOfCode/tasks'));
 const TaskManager = lazy(() => import('./sections/TaskManager'));
 const DocumentSubmission = lazy(() => import('./sections/DocumentSubmission'));
@@ -41,6 +42,7 @@ const App = () => {
                 <Route path="/ai-architect/course" element={<AICourse />} />
                 <Route path="/iot-innovator" element={<IoTInnovator />} />
                 <Route path="/iot-innovator/course" element={<IoTCourse />} />
+                <Route path="/genesis-faction" element={<GenesisFaction />} />
                 <Route path="/house-of-code/tasks" element={<HouseOfCodeTasks />} />
                 <Route path="/tasks" element={<TaskManager />} />
                 <Route path="/submit" element={<DocumentSubmission />} />

@@ -14,6 +14,7 @@ const Header = () => {
       <div className="logo">Metaverse-Platform</div>
       <nav className="nav">
         <Link to="/">Home</Link>
+        <Link to="/genesis-faction">Genesis Faction</Link>
         <Link to="/submit">Submit Document</Link>
         <Link to="/feedback">Feedback</Link>
         <Link to="/governance">Governance</Link>
