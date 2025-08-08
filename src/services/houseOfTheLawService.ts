@@ -1,5 +1,6 @@
 import { HouseOfTheLaw } from '../contracts';
 import { getProvider, getSigner } from './provider';
+import { resolveMpnsName } from '../hooks/useMpns';
 
 export interface ProposalParams {
   description: string;
@@ -30,15 +31,12 @@ export interface HouseOfTheLawService {
 
 let houseInstance: HouseOfTheLaw | undefined;
 
-const HOTL_ADDRESS =
-  process.env.REACT_APP_HOUSE_OF_THE_LAW_ADDRESS ||
-  process.env.HOUSE_OF_THE_LAW_ADDRESS ||
-  '0x0000000000000000000000000000000000000000';
-
 export const getHouse = async (): Promise<HouseOfTheLaw> => {
   if (!houseInstance) {
     const provider = getProvider();
-    houseInstance = new HouseOfTheLaw(HOTL_ADDRESS, provider);
+    const res = await resolveMpnsName('house-of-the-law.mpns', provider);
+    const address = res.value || '0x0000000000000000000000000000000000000000';
+    houseInstance = new HouseOfTheLaw(address, provider);
   }
   return houseInstance;
 };

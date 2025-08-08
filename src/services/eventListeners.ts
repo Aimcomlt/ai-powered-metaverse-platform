@@ -12,6 +12,7 @@ import {
   GenesisBlockFactory,
 } from '../contracts';
 import { getProvider } from './provider';
+import { resolveMpnsName } from '../hooks/useMpns';
 import {
   addGovernanceTokenEvent,
   addFunctionalTokenEvent,
@@ -58,67 +59,56 @@ const attachListeners = (
   });
 };
 
-export const initEventListeners = (dispatch: Dispatch) => {
+export const initEventListeners = async (dispatch: Dispatch) => {
   const provider = getProvider();
 
+  const getAddress = async (mpns: string, envKey: string) => {
+    const env =
+      process.env[`REACT_APP_${envKey}_ADDRESS`] ||
+      process.env[`${envKey}_ADDRESS`];
+    if (env) return env;
+    const res = await resolveMpnsName(mpns, provider);
+    return res.value || '0x0000000000000000000000000000000000000000';
+  };
+
   const governanceToken = new GovernanceToken(
-    process.env.REACT_APP_GOVERNANCE_TOKEN_ADDRESS ||
-      process.env.GOVERNANCE_TOKEN_ADDRESS ||
-      '0x0000000000000000000000000000000000000000',
+    await getAddress('governance-token.mpns', 'GOVERNANCE_TOKEN'),
     provider,
   );
   const functionalToken = new FunctionalToken(
-    process.env.REACT_APP_FUNCTIONAL_TOKEN_ADDRESS ||
-      process.env.FUNCTIONAL_TOKEN_ADDRESS ||
-      '0x0000000000000000000000000000000000000000',
+    await getAddress('functional-token.mpns', 'FUNCTIONAL_TOKEN'),
     provider,
   );
   const mpnsRegistry = new MpNSRegistry(
-    process.env.REACT_APP_MPNS_REGISTRY_ADDRESS ||
-      process.env.MPNS_REGISTRY_ADDRESS ||
-      '0x0000000000000000000000000000000000000000',
+    await getAddress('mpns-registry.mpns', 'MPNS_REGISTRY'),
     provider,
   );
   const crossFactionHub = new CrossFactionHub(
-    process.env.REACT_APP_CROSS_FACTION_HUB_ADDRESS ||
-      process.env.CROSS_FACTION_HUB_ADDRESS ||
-      '0x0000000000000000000000000000000000000000',
+    await getAddress('cross-faction-hub.mpns', 'CROSS_FACTION_HUB'),
     provider,
   );
   const gtStaking = new GTStaking(
-    process.env.REACT_APP_GT_STAKING_ADDRESS ||
-      process.env.GT_STAKING_ADDRESS ||
-      '0x0000000000000000000000000000000000000000',
+    await getAddress('gt-staking.mpns', 'GT_STAKING'),
     provider,
   );
   const houseOfTheLaw = new HouseOfTheLaw(
-    process.env.REACT_APP_HOUSE_OF_THE_LAW_ADDRESS ||
-      process.env.HOUSE_OF_THE_LAW_ADDRESS ||
-      '0x0000000000000000000000000000000000000000',
+    await getAddress('house-of-the-law.mpns', 'HOUSE_OF_THE_LAW'),
     provider,
   );
   const proofOfObservation = new ProofOfObservation(
-    process.env.REACT_APP_PROOF_OF_OBSERVATION_ADDRESS ||
-      process.env.PROOF_OF_OBSERVATION_ADDRESS ||
-      '0x0000000000000000000000000000000000000000',
+    await getAddress('proof-of-observation.mpns', 'PROOF_OF_OBSERVATION'),
     provider,
   );
   const pooTaskFlow = new PoO_TaskFlow(
-    process.env.REACT_APP_POO_TASK_FLOW_ADDRESS ||
-      process.env.POO_TASK_FLOW_ADDRESS ||
-      '0x0000000000000000000000000000000000000000',
+    await getAddress('poo-task-flow.mpns', 'POO_TASK_FLOW'),
     provider,
   );
   const genesisBlockFaction = new GenesisBlockFaction(
-    process.env.REACT_APP_GENESIS_BLOCK_FACTION_ADDRESS ||
-      process.env.GENESIS_BLOCK_FACTION_ADDRESS ||
-      '0x0000000000000000000000000000000000000000',
+    await getAddress('genesis-block-faction.mpns', 'GENESIS_BLOCK_FACTION'),
     provider,
   );
   const genesisBlockFactory = new GenesisBlockFactory(
-    process.env.REACT_APP_GENESIS_BLOCK_FACTORY_ADDRESS ||
-      process.env.GENESIS_BLOCK_FACTORY_ADDRESS ||
-      '0x0000000000000000000000000000000000000000',
+    await getAddress('genesis-block-factory.mpns', 'GENESIS_BLOCK_FACTORY'),
     provider,
   );
 

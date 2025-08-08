@@ -1,6 +1,7 @@
 import { GTStaking } from '../contracts';
 import { getProvider } from './provider';
 import type { TaskMetrics } from '../contracts/types';
+import { resolveMpnsName } from '../hooks/useMpns';
 
 export interface TaskService {
   getGTStaking(): Promise<GTStaking>;
@@ -10,15 +11,12 @@ export interface TaskService {
 let stakingInstance: GTStaking | undefined;
 const metricsCache = new Map<number, TaskMetrics>();
 
-const GT_STAKING_ADDRESS =
-  process.env.REACT_APP_GT_STAKING_ADDRESS ||
-  process.env.GT_STAKING_ADDRESS ||
-  '0x0000000000000000000000000000000000000000';
-
 export const getGTStaking = async (): Promise<GTStaking> => {
   if (!stakingInstance) {
     const provider = getProvider();
-    stakingInstance = new GTStaking(GT_STAKING_ADDRESS, provider);
+    const res = await resolveMpnsName('gt-staking.mpns', provider);
+    const address = res.value || '0x0000000000000000000000000000000000000000';
+    stakingInstance = new GTStaking(address, provider);
   }
   return stakingInstance;
 };

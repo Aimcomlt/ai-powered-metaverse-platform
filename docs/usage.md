@@ -52,3 +52,16 @@ Registering names requires the `REGISTRAR_ROLE`. Roles can only be granted by an
 2. Call `register(name, owner, duration, uri)` on `MpNSRegistry`.
 3. The owner can later `updateURI`, `transfer`, or `freezeName` as needed.
 
+### Resolving Names in React
+
+Fetch contract addresses or IPFS content by name using the `useMpns` hook:
+
+```tsx
+import useMpns from '../src/hooks/useMpns';
+
+const Example: React.FC = () => {
+  const { result } = useMpns('ai-architect');
+  return <span>{result.value}</span>;
+};
+```
+
