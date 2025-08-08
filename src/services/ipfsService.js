@@ -40,7 +40,19 @@ export const uploadAgentMd = async (fileOrString) => {
   }
 };
 
+export const fetchFromIPFS = async (hash) => {
+  try {
+    const url = `https://ipfs.io/ipfs/${hash}`;
+    const response = await axios.get(url, { responseType: 'text' });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching from IPFS:', error);
+    throw error;
+  }
+};
+
 export default {
   uploadDocument,
   uploadAgentMd,
+  fetchFromIPFS,
 };

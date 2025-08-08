@@ -146,3 +146,9 @@ This directory houses React components for the AI-Powered Metaverse Platform. Ea
 - **Smart-contract or AI:** none.
 - **Extension points:** wire to Redux or API sources and add pagination.
 
+## agents/AgentMarkdownViewer.tsx
+- **UI purpose:** Fetches an agent's metadata and displays its `AGENT.md` content.
+- **Redux slices:** none.
+- **Smart-contract or AI:** uses `useAgent` which leverages `agentService` and IPFS utilities.
+- **Extension points:** customize markdown rendering or styling.
+
