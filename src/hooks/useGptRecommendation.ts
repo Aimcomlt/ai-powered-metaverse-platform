@@ -32,16 +32,22 @@ const fetchMpnsContent = async (res: MpnsResolution): Promise<any> => {
 };
 
 const useGptRecommendation = (factionRulesName: string, userLevelName: string) => {
-  const { result: rulesResult } = useMpns(factionRulesName);
-  const { result: levelResult } = useMpns(userLevelName);
+  const { result: rulesResult, status: rulesStatus } = useMpns(factionRulesName);
+  const { result: levelResult, status: levelStatus } = useMpns(userLevelName);
   const balance = useSelector((state: RootState) => state.gt.balance);
 
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [status, setStatus] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
+  const [refreshIndex, setRefreshIndex] = useState(0);
 
   useEffect(() => {
     const run = async () => {
-      if (rulesResult.type === 'empty' || levelResult.type === 'empty') {
+      if (
+        rulesStatus !== 'ready' ||
+        levelStatus !== 'ready' ||
+        rulesResult.type === 'empty' ||
+        levelResult.type === 'empty'
+      ) {
         return;
       }
       setStatus('loading');
@@ -58,9 +64,18 @@ const useGptRecommendation = (factionRulesName: string, userLevelName: string) =
       }
     };
     run();
-  }, [rulesResult, levelResult, balance]);
+  }, [rulesResult, levelResult, balance, rulesStatus, levelStatus, refreshIndex]);
 
-  return { suggestions, status };
+  const refresh = () => setRefreshIndex((i) => i + 1);
+
+  const combinedStatus =
+    rulesStatus === 'error' || levelStatus === 'error'
+      ? 'error'
+      : rulesStatus === 'loading' || levelStatus === 'loading'
+      ? 'loading'
+      : status;
+
+  return { suggestions, status: combinedStatus, refresh };
 };
 
 export default useGptRecommendation;
