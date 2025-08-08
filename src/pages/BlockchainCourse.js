@@ -1,4 +1,5 @@
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 import CoursePageTemplate from '../components/CoursePageTemplate';
 
 const blockchainCourseData = {
@@ -46,6 +47,17 @@ const blockchainCourseData = {
   resources: `Access a list of recommended readings, tools, and forums to further your knowledge and connect with other blockchain enthusiasts.`,
 };
 
-const BlockchainCourse = () => <CoursePageTemplate {...blockchainCourseData} />;
+const BlockchainCourse = () => (
+  <>
+    <Helmet>
+      <title>Blockchain Battalion Course | Metaverse Platform</title>
+      <meta
+        name="description"
+        content="Comprehensive blockchain course covering Solidity, smart contracts, and DApps development."
+      />
+    </Helmet>
+    <CoursePageTemplate {...blockchainCourseData} />
+  </>
+);
 
 export default BlockchainCourse;
