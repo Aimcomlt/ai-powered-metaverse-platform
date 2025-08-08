@@ -4,6 +4,7 @@ import Header from './components/Header';
 import ErrorBoundary from './components/ErrorBoundary';
 import Loader from './components/Loader';
 import { ToastProvider } from './components/ToastProvider';
+import FactionLayout from './components/factions/FactionLayout';
 
 const Home = lazy(() => import('./pages/Home'));
 const QuantumQuorist = lazy(() => import('./pages/QuantumQuorist'));
@@ -58,46 +59,48 @@ const App = () => {
             <Suspense fallback={<Loader />}>
               <Routes>
                 <Route path="/" element={<Home />} />
-                  <Route path="/quantum-quorist" element={<QuantumQuorist />} />
-                  <Route path="/quantum-quorist/tasks" element={<QuantumQuoristTasks />} />
-                  <Route path="/quantum-quorist/proposals" element={<QuantumQuoristProposals />} />
-                  <Route path="/quantum-quorist/contributions" element={<QuantumQuoristContributions />} />
-                  <Route path="/quantum-quorist/governance" element={<QuantumQuoristGovernance />} />
-                  <Route path="/quantum-quorist/course" element={<QuantumCourse />} />
-                  <Route path="/blockchain-battalion" element={<BlockchainBattalion />} />
-                  <Route path="/blockchain-battalion/tasks" element={<BlockchainBattalionTasks />} />
-                  <Route path="/blockchain-battalion/proposals" element={<BlockchainBattalionProposals />} />
-                  <Route path="/blockchain-battalion/contributions" element={<BlockchainBattalionContributions />} />
-                  <Route path="/blockchain-battalion/governance" element={<BlockchainBattalionGovernance />} />
-                  <Route path="/blockchain-battalion/course" element={<BlockchainCourse />} />
-                  <Route path="/ai-architect" element={<AIArchitect />} />
-                  <Route path="/ai-architect/tasks" element={<AIArchitectTasks />} />
-                  <Route path="/ai-architect/proposals" element={<AIArchitectProposals />} />
-                  <Route path="/ai-architect/contributions" element={<AIArchitectContributions />} />
-                  <Route path="/ai-architect/governance" element={<AIArchitectGovernance />} />
-                  <Route path="/ai-architect/course" element={<AICourse />} />
-                  <Route path="/iot-innovator" element={<IoTInnovator />} />
-                  <Route path="/iot-innovator/tasks" element={<IoTInnovatorTasks />} />
-                  <Route path="/iot-innovator/proposals" element={<IoTInnovatorProposals />} />
-                  <Route path="/iot-innovator/contributions" element={<IoTInnovatorContributions />} />
-                  <Route path="/iot-innovator/governance" element={<IoTInnovatorGovernance />} />
-                  <Route path="/iot-innovator/course" element={<IoTCourse />} />
-                  <Route path="/genesis-faction" element={<GenesisFaction />} />
-                  <Route path="/genesis-faction/tasks" element={<GenesisFactionTasks />} />
-                  <Route path="/genesis-faction/proposals" element={<GenesisFactionProposals />} />
-                  <Route path="/genesis-faction/contributions" element={<GenesisFactionContributions />} />
-                  <Route path="/genesis-faction/governance" element={<GenesisFactionGovernance />} />
-                  <Route path="/house-of-code" element={<HouseOfCode />} />
-                  <Route path="/house-of-code/tasks" element={<HouseOfCodeTasks />} />
-                  <Route path="/house-of-code/proposals" element={<HouseOfCodeProposals />} />
-                  <Route path="/house-of-code/contributions" element={<HouseOfCodeContributions />} />
-                  <Route path="/house-of-code/governance" element={<HouseOfCodeGovernance />} />
-                  <Route path="/tasks" element={<TaskManager />} />
-                  <Route path="/submit" element={<DocumentSubmission />} />
-                  <Route path="/feedback" element={<Feedback />} />
-                  <Route path="/governance" element={<Governance />} />
-                  <Route path="/task-builder" element={<TaskBuilder />} />
-                  <Route path="/projects" element={<ProjectManagement />} />
+                <Route path="/quantum-quorist" element={<QuantumQuorist />} />
+                <Route path="/quantum-quorist/tasks" element={<QuantumQuoristTasks />} />
+                <Route path="/quantum-quorist/proposals" element={<QuantumQuoristProposals />} />
+                <Route path="/quantum-quorist/contributions" element={<QuantumQuoristContributions />} />
+                <Route path="/quantum-quorist/governance" element={<QuantumQuoristGovernance />} />
+                <Route path="/quantum-quorist/course" element={<QuantumCourse />} />
+                <Route path="/blockchain-battalion" element={<BlockchainBattalion />} />
+                <Route path="/blockchain-battalion/tasks" element={<BlockchainBattalionTasks />} />
+                <Route path="/blockchain-battalion/proposals" element={<BlockchainBattalionProposals />} />
+                <Route path="/blockchain-battalion/contributions" element={<BlockchainBattalionContributions />} />
+                <Route path="/blockchain-battalion/governance" element={<BlockchainBattalionGovernance />} />
+                <Route path="/blockchain-battalion/course" element={<BlockchainCourse />} />
+                <Route path="/ai-architect/*" element={<FactionLayout faction="ai-architect" />} >
+                  <Route index element={<AIArchitect />} />
+                  <Route path="tasks" element={<AIArchitectTasks />} />
+                  <Route path="proposals" element={<AIArchitectProposals />} />
+                  <Route path="contributions" element={<AIArchitectContributions />} />
+                  <Route path="governance" element={<AIArchitectGovernance />} />
+                  <Route path="course" element={<AICourse />} />
+                </Route>
+                <Route path="/iot-innovator" element={<IoTInnovator />} />
+                <Route path="/iot-innovator/tasks" element={<IoTInnovatorTasks />} />
+                <Route path="/iot-innovator/proposals" element={<IoTInnovatorProposals />} />
+                <Route path="/iot-innovator/contributions" element={<IoTInnovatorContributions />} />
+                <Route path="/iot-innovator/governance" element={<IoTInnovatorGovernance />} />
+                <Route path="/iot-innovator/course" element={<IoTCourse />} />
+                <Route path="/genesis-faction" element={<GenesisFaction />} />
+                <Route path="/genesis-faction/tasks" element={<GenesisFactionTasks />} />
+                <Route path="/genesis-faction/proposals" element={<GenesisFactionProposals />} />
+                <Route path="/genesis-faction/contributions" element={<GenesisFactionContributions />} />
+                <Route path="/genesis-faction/governance" element={<GenesisFactionGovernance />} />
+                <Route path="/house-of-code" element={<HouseOfCode />} />
+                <Route path="/house-of-code/tasks" element={<HouseOfCodeTasks />} />
+                <Route path="/house-of-code/proposals" element={<HouseOfCodeProposals />} />
+                <Route path="/house-of-code/contributions" element={<HouseOfCodeContributions />} />
+                <Route path="/house-of-code/governance" element={<HouseOfCodeGovernance />} />
+                <Route path="/tasks" element={<TaskManager />} />
+                <Route path="/submit" element={<DocumentSubmission />} />
+                <Route path="/feedback" element={<Feedback />} />
+                <Route path="/governance" element={<Governance />} />
+                <Route path="/task-builder" element={<TaskBuilder />} />
+                <Route path="/projects" element={<ProjectManagement />} />
               </Routes>
             </Suspense>
           </div>
