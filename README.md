@@ -44,6 +44,10 @@ npm install
 npx hardhat compile
 ```
 
+The Metaverse Contract Suite is available under [`contracts/contracts/metaverse`](contracts/contracts/metaverse).
+It is organized into modules for core, governance, registry, tokens, and validation.
+Refer to its [README](contracts/contracts/metaverse/README.md) for detailed usage and compilation instructions.
+
 ### Deployment
 
 Configure the following environment variables when deploying to define the blockchain connection used by the front-end provider:
