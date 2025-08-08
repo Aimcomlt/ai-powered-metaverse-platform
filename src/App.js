@@ -5,6 +5,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import Loader from './components/Loader';
 import { ToastProvider } from './components/ToastProvider';
 import FactionLayout from './components/factions/FactionLayout';
+import ProtectedFactionRoute from './routes/ProtectedFactionRoute';
 
 const Home = lazy(() => import('./pages/Home'));
 const QuantumQuorist = lazy(() => import('./pages/QuantumQuorist'));
@@ -41,6 +42,7 @@ const HouseOfCodeTasks = lazy(() => import('./pages/HouseOfCode/tasks'));
 const HouseOfCodeProposals = lazy(() => import('./pages/HouseOfCode/proposals'));
 const HouseOfCodeContributions = lazy(() => import('./pages/HouseOfCode/contributions'));
 const HouseOfCodeGovernance = lazy(() => import('./pages/HouseOfCode/governance'));
+const AccessDenied = lazy(() => import('./pages/AccessDenied'));
 const TaskManager = lazy(() => import('./sections/TaskManager'));
 const DocumentSubmission = lazy(() => import('./sections/DocumentSubmission'));
 const Feedback = lazy(() => import('./sections/Feedback'));
@@ -71,7 +73,14 @@ const App = () => {
                 <Route path="/blockchain-battalion/contributions" element={<BlockchainBattalionContributions />} />
                 <Route path="/blockchain-battalion/governance" element={<BlockchainBattalionGovernance />} />
                 <Route path="/blockchain-battalion/course" element={<BlockchainCourse />} />
-                <Route path="/ai-architect/*" element={<FactionLayout faction="ai-architect" />} >
+                <Route
+                  path="/ai-architect/*"
+                  element={
+                    <ProtectedFactionRoute requiredLevel={2} redirectPath="/access-denied">
+                      <FactionLayout faction="ai-architect" />
+                    </ProtectedFactionRoute>
+                  }
+                >
                   <Route index element={<AIArchitect />} />
                   <Route path="tasks" element={<AIArchitectTasks />} />
                   <Route path="proposals" element={<AIArchitectProposals />} />
@@ -101,6 +110,7 @@ const App = () => {
                 <Route path="/governance" element={<Governance />} />
                 <Route path="/task-builder" element={<TaskBuilder />} />
                 <Route path="/projects" element={<ProjectManagement />} />
+                <Route path="/access-denied" element={<AccessDenied />} />
               </Routes>
             </Suspense>
           </div>
