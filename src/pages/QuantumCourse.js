@@ -1,4 +1,5 @@
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 import CoursePageTemplate from '../components/CoursePageTemplate';
 
 const quantumCourseData = {
@@ -46,6 +47,17 @@ const quantumCourseData = {
   resources: `Access a list of recommended readings, tools, and forums to further your knowledge and connect with other quantum computing enthusiasts.`,
 };
 
-const QuantumCourse = () => <CoursePageTemplate {...quantumCourseData} />;
+const QuantumCourse = () => (
+  <>
+    <Helmet>
+      <title>Quantum Quorist Course | Metaverse Platform</title>
+      <meta
+        name="description"
+        content="Comprehensive quantum computing course covering algorithms, cryptography, and simulations."
+      />
+    </Helmet>
+    <CoursePageTemplate {...quantumCourseData} />
+  </>
+);
 
 export default QuantumCourse;

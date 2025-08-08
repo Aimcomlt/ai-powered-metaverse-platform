@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import { HelmetProvider } from 'react-helmet-async';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import AIArchitect from '../AIArchitect';
 import BlockchainBattalion from '../BlockchainBattalion';
@@ -20,11 +21,13 @@ describe('Faction pages', () => {
     });
 
     render(
-      <MemoryRouter initialEntries={['/ai-architect']}>
-        <Routes>
-          <Route path="/ai-architect" element={<AIArchitect />} />
-        </Routes>
-      </MemoryRouter>
+      <HelmetProvider>
+        <MemoryRouter initialEntries={['/ai-architect']}>
+          <Routes>
+            <Route path="/ai-architect" element={<AIArchitect />} />
+          </Routes>
+        </MemoryRouter>
+      </HelmetProvider>
     );
 
     expect(screen.getByRole('heading', { name: /AI Architect/i })).toBeInTheDocument();
@@ -39,11 +42,13 @@ describe('Faction pages', () => {
     });
 
     render(
-      <MemoryRouter initialEntries={['/blockchain-battalion']}>
-        <Routes>
-          <Route path="/blockchain-battalion" element={<BlockchainBattalion />} />
-        </Routes>
-      </MemoryRouter>
+      <HelmetProvider>
+        <MemoryRouter initialEntries={['/blockchain-battalion']}>
+          <Routes>
+            <Route path="/blockchain-battalion" element={<BlockchainBattalion />} />
+          </Routes>
+        </MemoryRouter>
+      </HelmetProvider>
     );
 
     expect(screen.getByRole('heading', { name: /Blockchain Battalion/i })).toBeInTheDocument();

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 import CoursePageTemplate from '../components/CoursePageTemplate';
 
 const aiCourseData = {
@@ -46,6 +47,17 @@ const aiCourseData = {
   resources: `Access a list of recommended readings, tools, and forums to further your knowledge and connect with other AI enthusiasts.`,
 };
 
-const AICourse = () => <CoursePageTemplate {...aiCourseData} />;
+const AICourse = () => (
+  <>
+    <Helmet>
+      <title>AI Architect Course | Metaverse Platform</title>
+      <meta
+        name="description"
+        content="Comprehensive AI course covering machine learning, system development, and ethics."
+      />
+    </Helmet>
+    <CoursePageTemplate {...aiCourseData} />
+  </>
+);
 
 export default AICourse;

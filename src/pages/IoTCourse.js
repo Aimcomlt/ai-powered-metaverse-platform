@@ -1,4 +1,5 @@
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 import CoursePageTemplate from '../components/CoursePageTemplate';
 
 const iotCourseData = {
@@ -46,6 +47,17 @@ const iotCourseData = {
   resources: `Access a list of recommended readings, tools, and forums to further your knowledge and connect with other IoT enthusiasts.`,
 };
 
-const IoTCourse = () => <CoursePageTemplate {...iotCourseData} />;
+const IoTCourse = () => (
+  <>
+    <Helmet>
+      <title>IoT Innovator Course | Metaverse Platform</title>
+      <meta
+        name="description"
+        content="Comprehensive IoT course covering devices, protocols, and security."
+      />
+    </Helmet>
+    <CoursePageTemplate {...iotCourseData} />
+  </>
+);
 
 export default IoTCourse;

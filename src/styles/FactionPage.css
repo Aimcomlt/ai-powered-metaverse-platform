@@ -58,10 +58,13 @@
     display: block;
     transition: background 0.3s ease, color 0.3s ease;
   }
-  
-  .documents-section ul li a:hover {
+
+  .documents-section ul li a:hover,
+  .documents-section ul li a:focus {
     background: #0ff; /* Neon blue color */
     color: black;
+    outline: 2px solid #fff;
+    outline-offset: 2px;
   }
 
   section {
@@ -101,10 +104,13 @@
     border-radius: 10px;
     transition: background 0.3s ease, color 0.3s ease;
   }
-  
-  .course-link:hover {
+
+  .course-link:hover,
+  .course-link:focus {
     background: #0cc; /* Slightly darker neon blue */
     color: white;
+    outline: 2px solid #fff;
+    outline-offset: 2px;
   }
   
   @media (max-width: 768px) {
