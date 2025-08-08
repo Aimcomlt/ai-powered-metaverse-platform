@@ -1,6 +1,6 @@
 import { GovernanceToken, GTStaking } from '../contracts';
 import { getProvider, getSigner } from './provider';
-import { resolveMpnsName } from '../hooks/useMpns';
+import { resolveMpnsName } from './mpns';
 
 export interface StakeParams {
   id: number;

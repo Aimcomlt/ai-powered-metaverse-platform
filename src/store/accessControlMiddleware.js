@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { getProvider } from '../services/provider';
-import { resolveMpnsName } from '../hooks/useMpns';
+import { resolveMpnsName } from '../services/mpns';
 
 const checkedTypes = ['navigation/attempt', 'task/start', 'proposal/submit'];
 

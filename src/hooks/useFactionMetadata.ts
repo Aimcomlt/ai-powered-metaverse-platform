@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import useMpns from './useMpns';
+import { normalizeIpfsUrl } from '../services/mpns';
 
 export interface FactionMetadata {
   title: string;
@@ -31,10 +32,7 @@ export const useFactionMetadata = (factionId?: string) => {
       try {
         const res = await resolve(factionId);
         if (res.type === 'ipfs') {
-          let url = res.value;
-          if (url.startsWith('ipfs://')) {
-            url = `https://ipfs.io/ipfs/${url.slice(7)}`;
-          }
+          const url = normalizeIpfsUrl(res.value);
           const response = await fetch(url);
           const json = await response.json();
           setData(json);

@@ -1,9 +1,9 @@
 import accessControlMiddleware from '../accessControlMiddleware';
-import { resolveMpnsName } from '../../hooks/useMpns';
+import { resolveMpnsName } from '../../services/mpns';
 import { getProvider } from '../../services/provider';
 import { ethers, BigNumber } from 'ethers';
 
-jest.mock('../../hooks/useMpns', () => ({
+jest.mock('../../services/mpns', () => ({
   resolveMpnsName: jest.fn(),
 }));
 

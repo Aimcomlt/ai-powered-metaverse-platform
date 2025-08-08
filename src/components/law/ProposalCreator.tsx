@@ -10,14 +10,16 @@ const ProposalCreator: React.FC = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [executionData, setExecutionData] = useState('');
+  const [targetMpns, setTargetMpns] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await createProposal({ title, description, executionData });
+      await createProposal({ title, description, executionData, targetMpns });
       setTitle('');
       setDescription('');
       setExecutionData('');
+      setTargetMpns('');
     } catch (err) {
       // errors handled in hook
     }
@@ -62,6 +64,14 @@ const ProposalCreator: React.FC = () => {
           value={executionData}
           onChange={(e) => setExecutionData(e.target.value)}
           placeholder="Execution Data"
+          required
+          className="w-full p-2 border rounded"
+        />
+        <input
+          type="text"
+          value={targetMpns}
+          onChange={(e) => setTargetMpns(e.target.value)}
+          placeholder="Target MpNS name"
           required
           className="w-full p-2 border rounded"
         />
