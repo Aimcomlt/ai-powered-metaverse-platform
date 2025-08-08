@@ -3,6 +3,7 @@ import useMpns from '../../hooks/useMpns';
 import useGtValidation from '../../hooks/useGtValidation';
 import LoadingSpinner from '../shared/LoadingSpinner';
 import AlertMessage from '../shared/AlertMessage';
+import { normalizeIpfsUrl } from '../../services/mpns';
 
 interface FactionContentListProps {
   mpnsName: string;
@@ -36,10 +37,7 @@ const FactionContentList: React.FC<FactionContentListProps> = ({
     if (result.type === 'ipfs' && result.value) {
       setDataStatus('loading');
       setError('');
-      let url = result.value;
-      if (url.startsWith('ipfs://')) {
-        url = `https://ipfs.io/ipfs/${url.slice(7)}`;
-      }
+      const url = normalizeIpfsUrl(result.value);
       try {
         const resp = await fetch(url);
         const data = await resp.json();

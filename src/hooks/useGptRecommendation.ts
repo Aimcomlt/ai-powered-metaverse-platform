@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import useMpns, { MpnsResolution } from './useMpns';
+import useMpns from './useMpns';
 import aiService from '../services/aiService';
+import { MpnsResolution, normalizeIpfsUrl } from '../services/mpns';
 
 interface RootState {
   gt: {
@@ -11,10 +12,7 @@ interface RootState {
 
 const fetchMpnsContent = async (res: MpnsResolution): Promise<any> => {
   if (res.type === 'ipfs' && res.value) {
-    let url = res.value;
-    if (url.startsWith('ipfs://')) {
-      url = `https://ipfs.io/ipfs/${url.slice(7)}`;
-    }
+    const url = normalizeIpfsUrl(res.value);
     try {
       const resp = await fetch(url);
       const text = await resp.text();

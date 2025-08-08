@@ -1,7 +1,7 @@
 import { GTStaking } from '../contracts';
 import { getProvider } from './provider';
 import type { TaskMetrics } from '../contracts/types';
-import { resolveMpnsName } from '../hooks/useMpns';
+import { resolveMpnsName } from './mpns';
 
 export interface TaskService {
   getGTStaking(): Promise<GTStaking>;

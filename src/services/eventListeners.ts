@@ -12,7 +12,7 @@ import {
   GenesisBlockFactory,
 } from '../contracts';
 import { getProvider } from './provider';
-import { resolveMpnsName } from '../hooks/useMpns';
+import { resolveMpnsName } from './mpns';
 import {
   addGovernanceTokenEvent,
   addFunctionalTokenEvent,

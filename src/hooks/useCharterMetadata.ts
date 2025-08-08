@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import useContract from './useContract';
+import { normalizeIpfsUrl } from '../services/mpns';
 
 interface CharterMetadata {
   [key: string]: any;
@@ -29,12 +30,7 @@ export const useCharterMetadata = (factionName?: string) => {
         const charter = await registry.getCharterByName(factionName);
         if (charter?.ipfsHash) {
           setImmutableGenesis(charter.immutableGenesis);
-          let url: string = charter.ipfsHash;
-          if (url.startsWith('ipfs://')) {
-            url = `https://ipfs.io/ipfs/${url.slice(7)}`;
-          } else if (!url.startsWith('http')) {
-            url = `https://ipfs.io/ipfs/${url}`;
-          }
+          const url = normalizeIpfsUrl(charter.ipfsHash);
           const res = await fetch(url);
           const data = await res.json();
           setMetadata(data);

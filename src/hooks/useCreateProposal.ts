@@ -1,10 +1,12 @@
 import { useState, useCallback } from 'react';
 import { createProposal as serviceCreateProposal } from '../services/houseOfTheLawService';
+import { resolveMpnsName } from '../services/mpns';
 
 interface CreateProposalArgs {
   title: string;
   description: string;
   executionData: string;
+  targetMpns: string;
 }
 
 export const useCreateProposal = () => {
@@ -13,16 +15,20 @@ export const useCreateProposal = () => {
   const [success, setSuccess] = useState(false);
 
   const createProposal = useCallback(
-    async ({ title, description, executionData }: CreateProposalArgs) => {
+    async ({ title, description, executionData, targetMpns }: CreateProposalArgs) => {
       setLoading(true);
       setError(null);
       setSuccess(false);
       try {
+        const targetRes = await resolveMpnsName(targetMpns);
+        if (targetRes.type !== 'contract') {
+          throw new Error('Invalid target contract');
+        }
         await serviceCreateProposal({
           description,
           ipfsHash: '',
           eligibleGTId: 0,
-          target: '0x0000000000000000000000000000000000000000',
+          target: targetRes.value,
           data: executionData,
         });
         setSuccess(true);
