@@ -135,10 +135,10 @@ This directory houses React components for the AI-Powered Metaverse Platform. Ea
 - **Extension points:** add form fields, validation hooks, or success callbacks.
 
 ## law/VotePanel.tsx
-- **UI purpose:** Buttons for yes/no/abstain votes on a proposal.
+- **UI purpose:** Submit quadratic votes on a proposal with configurable weight.
 - **Redux slices:** none.
-- **Smart-contract or AI:** executes votes through `useVote`.
-- **Extension points:** display vote counts or disable voting based on store state.
+- **Smart-contract or AI:** executes votes through `useQuadraticVote`.
+- **Extension points:** display cost calculations or disable voting based on store state.
 
 ## law/ProposalList.tsx
 - **UI purpose:** Renders a list of proposals with status tags.

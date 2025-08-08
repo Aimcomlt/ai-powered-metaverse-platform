@@ -1,6 +1,6 @@
 import React from 'react';
-import useVote from '../../hooks/useVote';
 import useGtValidation from '../../hooks/useGtValidation';
+import useQuadraticVote from '../../hooks/useQuadraticVote';
 
 interface VotePanelProps {
   proposalId: number;
@@ -9,10 +9,8 @@ interface VotePanelProps {
 
 const VotePanel: React.FC<VotePanelProps> = ({ proposalId, userAddress }) => {
   const hasGt = useGtValidation(1);
-  const { voteYes, voteNo, abstain, loading, error, lastVote } = useVote(
-    proposalId,
-    userAddress,
-  );
+  const { votes, setVotes, cost, castVote, loading, error, lastVote } =
+    useQuadraticVote(proposalId);
 
   if (!hasGt) {
     return (
@@ -26,32 +24,26 @@ const VotePanel: React.FC<VotePanelProps> = ({ proposalId, userAddress }) => {
     <div className="p-4 border rounded">
       <h3 className="text-lg font-semibold mb-2">Vote on Proposal</h3>
       <div className="text-sm text-gray-600 mb-4">Address: {userAddress}</div>
-      <div className="space-x-2 mb-4">
+      <div className="mb-4 flex items-center space-x-2">
+        <input
+          type="number"
+          min={0}
+          value={votes}
+          onChange={(e) => setVotes(Number(e.target.value))}
+          className="border px-2 py-1 rounded w-20"
+        />
         <button
-          onClick={voteYes}
-          disabled={loading}
-          className="bg-green-500 text-white px-3 py-1 rounded"
+          onClick={castVote}
+          disabled={loading || votes <= 0}
+          className="bg-blue-500 text-white px-3 py-1 rounded"
         >
-          Yes
-        </button>
-        <button
-          onClick={voteNo}
-          disabled={loading}
-          className="bg-red-500 text-white px-3 py-1 rounded"
-        >
-          No
-        </button>
-        <button
-          onClick={abstain}
-          disabled={loading}
-          className="bg-gray-500 text-white px-3 py-1 rounded"
-        >
-          Abstain
+          Cast Vote
         </button>
       </div>
+      <div className="text-sm text-gray-600 mb-2">Cost: {cost} GTs</div>
       {loading && <div className="text-blue-500">Submitting vote...</div>}
       {error && <div className="text-red-500">{error.message || 'Vote failed'}</div>}
-      {lastVote && !error && !loading && (
+      {lastVote !== null && !error && !loading && (
         <div className="text-green-500">Vote cast successfully: {lastVote}</div>
       )}
     </div>
