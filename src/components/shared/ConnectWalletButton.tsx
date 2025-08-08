@@ -19,21 +19,26 @@ const ConnectWalletButton: React.FC = () => {
 
   if (address) {
     const short = `${address.slice(0, 6)}...${address.slice(-4)}`;
-    return (
-      <button className="px-4 py-2 bg-green-500 text-white rounded" title={address}>
-        {short}
-      </button>
-    );
+      return (
+        <button
+          type="button"
+          className="px-4 py-2 bg-green-500 text-white rounded"
+          title={address}
+        >
+          {short}
+        </button>
+      );
   }
 
-  return (
-    <button
-      className="px-4 py-2 bg-blue-500 text-white rounded"
-      onClick={connectWallet}
-    >
-      Connect Wallet
-    </button>
-  );
+    return (
+      <button
+        type="button"
+        className="px-4 py-2 bg-blue-500 text-white rounded"
+        onClick={connectWallet}
+      >
+        Connect Wallet
+      </button>
+    );
 };
 
 export default ConnectWalletButton;

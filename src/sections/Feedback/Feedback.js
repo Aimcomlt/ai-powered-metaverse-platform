@@ -27,9 +27,9 @@ const Feedback = () => {
     }
   };
 
-  return (
-    <div className="feedback">
-      <h2>Provide Feedback</h2>
+    return (
+      <main id="main-content" tabIndex={-1} className="feedback">
+        <h1>Provide Feedback</h1>
       <form onSubmit={handleSubmit}>
         <div>
           <label>Task Feedback</label>
@@ -51,13 +51,13 @@ const Feedback = () => {
           {submitting ? 'Submitting...' : 'Submit Feedback'}
         </button>
       </form>
-      {feedbackSubmitted && (
-        <div className="feedback-success">
-          <p>Feedback submitted successfully. Thank you!</p>
-        </div>
-      )}
-    </div>
-  );
+        {feedbackSubmitted && (
+          <div className="feedback-success">
+            <p>Feedback submitted successfully. Thank you!</p>
+          </div>
+        )}
+      </main>
+    );
 };
 
 export default Feedback;

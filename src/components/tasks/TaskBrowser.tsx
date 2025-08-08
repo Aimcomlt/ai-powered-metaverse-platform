@@ -83,26 +83,29 @@ const TaskBrowser: React.FC<TaskBrowserProps> = ({ userAddress }) => {
 
   return (
     <div className="p-4">
-      <div className="mb-4 flex space-x-2">
-        <button
-          className={`px-3 py-1 rounded ${filter === 'all' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-          onClick={() => setFilter('all')}
-        >
-          All
-        </button>
-        <button
-          className={`px-3 py-1 rounded ${filter === 'completed' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-          onClick={() => setFilter('completed')}
-        >
-          Completed
-        </button>
-        <button
-          className={`px-3 py-1 rounded ${filter === 'pending' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-          onClick={() => setFilter('pending')}
-        >
-          Pending
-        </button>
-      </div>
+        <div className="mb-4 flex space-x-2">
+          <button
+            type="button"
+            className={`px-3 py-1 rounded ${filter === 'all' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+            onClick={() => setFilter('all')}
+          >
+            All
+          </button>
+          <button
+            type="button"
+            className={`px-3 py-1 rounded ${filter === 'completed' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+            onClick={() => setFilter('completed')}
+          >
+            Completed
+          </button>
+          <button
+            type="button"
+            className={`px-3 py-1 rounded ${filter === 'pending' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+            onClick={() => setFilter('pending')}
+          >
+            Pending
+          </button>
+        </div>
       {filteredTasks.length === 0 ? (
         <div className="text-gray-500">No tasks available.</div>
       ) : (
@@ -123,15 +126,16 @@ const TaskBrowser: React.FC<TaskBrowserProps> = ({ userAddress }) => {
                   />
                 )}
               </div>
-              {!completed.has(task.id) && (
-                <button
-                  className="bg-green-500 text-white px-3 py-1 rounded"
-                  onClick={() => handleComplete(task)}
-                  disabled={rewarding}
-                >
-                  Complete
-                </button>
-              )}
+                {!completed.has(task.id) && (
+                  <button
+                    type="button"
+                    className="bg-green-500 text-white px-3 py-1 rounded"
+                    onClick={() => handleComplete(task)}
+                    disabled={rewarding}
+                  >
+                    Complete
+                  </button>
+                )}
             </li>
           ))}
         </ul>

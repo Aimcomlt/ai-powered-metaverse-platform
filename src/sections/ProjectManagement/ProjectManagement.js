@@ -46,9 +46,9 @@ const ProjectManagement = () => {
     }
   };
 
-  return (
-    <div className="project-management">
-      <h2>Project Management</h2>
+    return (
+      <main id="main-content" tabIndex={-1} className="project-management">
+        <h1>Project Management</h1>
       <form onSubmit={handleAddProject}>
         <div>
           <label>Project Name</label>
@@ -81,8 +81,8 @@ const ProjectManagement = () => {
         </div>
         <button type="submit">Add Project</button>
       </form>
-      <div className="projects-list">
-        <h3>Current Projects</h3>
+        <div className="projects-list">
+          <h2>Current Projects</h2>
         <ul>
           {projects.map((project, index) => (
             <li key={index}>
@@ -93,8 +93,8 @@ const ProjectManagement = () => {
           ))}
         </ul>
       </div>
-      <div className="monitoring-data">
-        <h3>Project Monitoring</h3>
+        <div className="monitoring-data">
+          <h2>Project Monitoring</h2>
         {loading ? <Loader /> : (
           <ul>
             {monitoringData.map((data, index) => (
@@ -107,8 +107,8 @@ const ProjectManagement = () => {
           </ul>
         )}
       </div>
-    </div>
-  );
+      </main>
+    );
 };
 
 export default ProjectManagement;

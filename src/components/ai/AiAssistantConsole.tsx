@@ -38,20 +38,22 @@ const AiAssistantConsole: React.FC = () => {
           ))}
         </ul>
       )}
-      <div className="flex space-x-2">
-        <button
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-          onClick={handleCreateProposal}
-        >
-          Create Proposal
-        </button>
-        <button
-          className="bg-green-500 text-white px-4 py-2 rounded"
-          onClick={handleStartTask}
-        >
-          Start Task
-        </button>
-      </div>
+        <div className="flex space-x-2">
+          <button
+            type="button"
+            className="bg-blue-500 text-white px-4 py-2 rounded"
+            onClick={handleCreateProposal}
+          >
+            Create Proposal
+          </button>
+          <button
+            type="button"
+            className="bg-green-500 text-white px-4 py-2 rounded"
+            onClick={handleStartTask}
+          >
+            Start Task
+          </button>
+        </div>
     </div>
   );
 };
