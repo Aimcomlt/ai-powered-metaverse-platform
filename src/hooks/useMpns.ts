@@ -9,6 +9,45 @@ export type MpnsResolution = {
   value: string;
 };
 
+export const resolveMpnsName = async (
+  lookup: string,
+  provider = getProvider(),
+): Promise<MpnsResolution> => {
+  const registryAddress =
+    process.env.REACT_APP_MPNS_REGISTRY_ADDRESS ||
+    process.env.MPNS_REGISTRY_ADDRESS;
+  try {
+    let uri: string | undefined;
+    if (registryAddress) {
+      try {
+        const registry = new ethers.Contract(
+          registryAddress,
+          MpNSRegistryAbi,
+          provider,
+        );
+        uri = await registry.nameToUri(lookup);
+      } catch {
+        uri = undefined;
+      }
+    }
+    if (!uri) {
+      uri = (localRecords as Record<string, string>)[lookup];
+    }
+    if (!uri) {
+      return { type: 'empty', value: '' };
+    }
+    if (/^0x[a-fA-F0-9]{40}$/.test(uri)) {
+      return { type: 'contract', value: uri };
+    }
+    if (uri.startsWith('ipfs://') || uri.includes('/ipfs/')) {
+      return { type: 'ipfs', value: uri };
+    }
+    return { type: 'empty', value: uri };
+  } catch {
+    return { type: 'empty', value: '' };
+  }
+};
+
 export const useMpns = (name?: string) => {
   const [result, setResult] = useState<MpnsResolution>({
     type: 'empty',
@@ -17,9 +56,6 @@ export const useMpns = (name?: string) => {
   const [status, setStatus] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
 
   const provider = getProvider();
-  const registryAddress =
-    process.env.REACT_APP_MPNS_REGISTRY_ADDRESS ||
-    process.env.MPNS_REGISTRY_ADDRESS;
 
   const resolve = useCallback(
     async (lookup: string): Promise<MpnsResolution> => {
@@ -30,44 +66,12 @@ export const useMpns = (name?: string) => {
         return empty;
       }
       setStatus('loading');
-      try {
-        let uri: string | undefined;
-        if (registryAddress) {
-          try {
-            const registry = new ethers.Contract(
-              registryAddress,
-              MpNSRegistryAbi,
-              provider,
-            );
-            uri = await registry.nameToUri(lookup);
-          } catch {
-            uri = undefined;
-          }
-        }
-        if (!uri) {
-          uri = (localRecords as Record<string, string>)[lookup];
-        }
-        let res: MpnsResolution;
-        if (!uri) {
-          res = { type: 'empty', value: '' };
-        } else if (/^0x[a-fA-F0-9]{40}$/.test(uri)) {
-          res = { type: 'contract', value: uri };
-        } else if (uri.startsWith('ipfs://') || uri.includes('/ipfs/')) {
-          res = { type: 'ipfs', value: uri };
-        } else {
-          res = { type: 'empty', value: uri };
-        }
-        setResult(res);
-        setStatus('ready');
-        return res;
-      } catch {
-        const empty: MpnsResolution = { type: 'empty', value: '' };
-        setResult(empty);
-        setStatus('error');
-        return empty;
-      }
+      const res = await resolveMpnsName(lookup, provider);
+      setResult(res);
+      setStatus('ready');
+      return res;
     },
-    [registryAddress, provider],
+    [provider],
   );
 
   useEffect(() => {

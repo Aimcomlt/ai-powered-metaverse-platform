@@ -1,5 +1,6 @@
 import { GovernanceToken, GTStaking } from '../contracts';
 import { getProvider, getSigner } from './provider';
+import { resolveMpnsName } from '../hooks/useMpns';
 
 export interface StakeParams {
   id: number;
@@ -17,20 +18,12 @@ export interface GTService {
 let governanceToken: GovernanceToken | undefined;
 let stakingInstance: GTStaking | undefined;
 
-const GOVERNANCE_TOKEN_ADDRESS =
-  process.env.REACT_APP_GOVERNANCE_TOKEN_ADDRESS ||
-  process.env.GOVERNANCE_TOKEN_ADDRESS ||
-  '0x0000000000000000000000000000000000000000';
-
-const GT_STAKING_ADDRESS =
-  process.env.REACT_APP_GT_STAKING_ADDRESS ||
-  process.env.GT_STAKING_ADDRESS ||
-  '0x0000000000000000000000000000000000000000';
-
 export const getGovernanceToken = async (): Promise<GovernanceToken> => {
   if (!governanceToken) {
     const provider = getProvider();
-    governanceToken = new GovernanceToken(GOVERNANCE_TOKEN_ADDRESS, provider);
+    const res = await resolveMpnsName('governance-token.mpns', provider);
+    const address = res.value || '0x0000000000000000000000000000000000000000';
+    governanceToken = new GovernanceToken(address, provider);
   }
   return governanceToken;
 };
@@ -38,7 +31,9 @@ export const getGovernanceToken = async (): Promise<GovernanceToken> => {
 export const getGTStaking = async (): Promise<GTStaking> => {
   if (!stakingInstance) {
     const provider = getProvider();
-    stakingInstance = new GTStaking(GT_STAKING_ADDRESS, provider);
+    const res = await resolveMpnsName('gt-staking.mpns', provider);
+    const address = res.value || '0x0000000000000000000000000000000000000000';
+    stakingInstance = new GTStaking(address, provider);
   }
   return stakingInstance;
 };
