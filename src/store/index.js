@@ -4,6 +4,7 @@ import taskReducer from './taskSlice';
 import aiReducer from './aiSlice';
 import walletReducer from './walletSlice';
 import aiMiddleware from './aiMiddleware';
+import accessControlMiddleware from './accessControlMiddleware';
 import {
   governanceTokenEventsReducer,
   functionalTokenEventsReducer,
@@ -35,5 +36,5 @@ export const store = configureStore({
     genesisBlockFactoryEvents: genesisBlockFactoryEventsReducer,
   },
   middleware: (getDefault) =>
-    getDefault().concat(aiMiddleware),
+    getDefault().concat(aiMiddleware, accessControlMiddleware),
 });
