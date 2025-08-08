@@ -34,23 +34,23 @@ const TaskManager: React.FC = () => {
     console.log(`Task completed: ${task}`);
   };
 
-  if (loading) {
-    return <div>Loading tasks...</div>;
-  }
+    if (loading) {
+      return <div>Loading tasks...</div>;
+    }
 
-  return (
-    <div className="task-manager">
-      <h2>Task Manager</h2>
-      <ul>
-        {tasks.map((task, index) => (
-          <li key={index}>
-            {task}
-            <button onClick={() => handleTaskCompletion(task)}>Complete</button>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+    return (
+      <main id="main-content" tabIndex={-1} className="task-manager">
+        <h1>Task Manager</h1>
+        <ul>
+          {tasks.map((task, index) => (
+            <li key={index}>
+              {task}
+              <button type="button" onClick={() => handleTaskCompletion(task)}>Complete</button>
+            </li>
+          ))}
+        </ul>
+      </main>
+    );
 };
 
 export default TaskManager;

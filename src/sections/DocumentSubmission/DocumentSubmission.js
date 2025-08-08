@@ -33,10 +33,10 @@ const DocumentSubmission = () => {
     }
   };
 
-  return (
-    <div className="document-submission">
-      <h2>Submit Document</h2>
-      <form onSubmit={handleSubmit}>
+    return (
+      <main id="main-content" tabIndex={-1} className="document-submission">
+        <h1>Submit Document</h1>
+        <form onSubmit={handleSubmit}>
         <div>
           <label>Title</label>
           <input
@@ -72,9 +72,9 @@ const DocumentSubmission = () => {
           <p>{uploadedHash}</p>
         </div>
       )}
-      <AgentMdUploader />
-    </div>
-  );
+        <AgentMdUploader />
+      </main>
+    );
 };
 
 export default DocumentSubmission;

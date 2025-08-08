@@ -6,17 +6,17 @@ import KeyFeatures from '../components/KeyFeatures';
 import Testimonials from '../components/Testimonials';
 import Footer from '../components/Footer';
 
-const Home = () => {
-  return (
-    <div>
-      <HeroSection />
-      <FeaturedFactions />
-      <Introduction />
-      <KeyFeatures />
-      <Testimonials />
-      <Footer />
-    </div>
-  );
-};
+  const Home = () => {
+    return (
+      <main id="main-content" tabIndex={-1}>
+        <HeroSection />
+        <FeaturedFactions />
+        <Introduction />
+        <KeyFeatures />
+        <Testimonials />
+        <Footer />
+      </main>
+    );
+  };
 
 export default Home;

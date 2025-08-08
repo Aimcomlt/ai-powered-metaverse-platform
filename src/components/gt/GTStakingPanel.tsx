@@ -60,20 +60,22 @@ const GTStakingPanel: React.FC<GTStakingPanelProps> = ({ tokenId, userAddress })
           min={1}
           onChange={(e) => setAmount(Number(e.target.value))}
         />
-        <button
-          className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
-          onClick={handleStake}
-          disabled={staking}
-        >
-          Stake
-        </button>
-        <button
-          className="bg-red-500 text-white px-4 py-2 rounded"
-          onClick={handleUnstake}
-          disabled={unstaking}
-        >
-          Unstake
-        </button>
+          <button
+            type="button"
+            className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
+            onClick={handleStake}
+            disabled={staking}
+          >
+            Stake
+          </button>
+          <button
+            type="button"
+            className="bg-red-500 text-white px-4 py-2 rounded"
+            onClick={handleUnstake}
+            disabled={unstaking}
+          >
+            Unstake
+          </button>
       </div>
       {staking && <p className="text-gray-500">Staking...</p>}
       {stakeError && (

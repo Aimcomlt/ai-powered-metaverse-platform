@@ -69,38 +69,38 @@ const FactionContentList: React.FC<FactionContentListProps> = ({
     );
   }
 
-  return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">{title}</h1>
-      {(status === 'loading' || dataStatus === 'loading') && (
-        <LoadingSpinner size="md" text="Loading..." />
-      )}
-      {status === 'error' && (
-        <AlertMessage
-          type="error"
-          message="Failed to resolve content location."
-          onRetry={() => resolve(mpnsName)}
-        />
-      )}
-      {dataStatus === 'error' && (
-        <AlertMessage
-          type="error"
-          message={error || 'Failed to load content.'}
-          onRetry={load}
-        />
-      )}
-      {dataStatus === 'ready' && items.length === 0 && (
-        <div>No content found.</div>
-      )}
-      {dataStatus === 'ready' && items.length > 0 && (
-        <ul className="list-disc pl-5 space-y-2">
-          {items.map((item, idx) => (
-            <li key={idx}>{item.title || `Item ${idx + 1}`}</li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
+    return (
+      <main id="main-content" tabIndex={-1} className="p-4">
+        <h1 className="text-2xl font-bold mb-4">{title}</h1>
+        {(status === 'loading' || dataStatus === 'loading') && (
+          <LoadingSpinner size="md" text="Loading..." />
+        )}
+        {status === 'error' && (
+          <AlertMessage
+            type="error"
+            message="Failed to resolve content location."
+            onRetry={() => resolve(mpnsName)}
+          />
+        )}
+        {dataStatus === 'error' && (
+          <AlertMessage
+            type="error"
+            message={error || 'Failed to load content.'}
+            onRetry={load}
+          />
+        )}
+        {dataStatus === 'ready' && items.length === 0 && (
+          <div>No content found.</div>
+        )}
+        {dataStatus === 'ready' && items.length > 0 && (
+          <ul className="list-disc pl-5 space-y-2">
+            {items.map((item, idx) => (
+              <li key={idx}>{item.title || `Item ${idx + 1}`}</li>
+            ))}
+          </ul>
+        )}
+      </main>
+    );
 };
 
 export default FactionContentList;

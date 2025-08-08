@@ -11,21 +11,21 @@ const TaskBuilder = () => {
     dispatch(stakeGT({ id: 0, amount: 1 }));
   };
 
-  if (staked > 0) {
-    return (
-      <div className="task-builder">
-        <h2>Task Builder</h2>
-        <p>Builder unlocked. This is a placeholder for the AI-powered UI.</p>
-      </div>
-    );
-  }
+    if (staked > 0) {
+      return (
+        <main id="main-content" tabIndex={-1} className="task-builder">
+          <h1>Task Builder</h1>
+          <p>Builder unlocked. This is a placeholder for the AI-powered UI.</p>
+        </main>
+      );
+    }
 
-  return (
-    <div className="task-builder">
-      <h2>Stake GT to Build a Task</h2>
-      <button onClick={handleStake}>Stake 1 GT</button>
-    </div>
-  );
+    return (
+      <main id="main-content" tabIndex={-1} className="task-builder">
+        <h1>Stake GT to Build a Task</h1>
+        <button type="button" onClick={handleStake}>Stake 1 GT</button>
+      </main>
+    );
 };
 
 export default TaskBuilder;

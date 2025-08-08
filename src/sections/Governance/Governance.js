@@ -25,9 +25,9 @@ const Governance = () => {
     }
   };
 
-  return (
-    <div className="governance">
-      <h2>Draft and Analyze Policy</h2>
+    return (
+      <main id="main-content" tabIndex={-1} className="governance">
+        <h1>Draft and Analyze Policy</h1>
       <form onSubmit={handleAnalyze}>
         <div>
           <label>Policy Document</label>
@@ -41,14 +41,14 @@ const Governance = () => {
           {analyzing ? 'Analyzing...' : 'Analyze Policy'}
         </button>
       </form>
-      {analysis && (
-        <div className="analysis-result">
-          <h3>Analysis and Recommendations</h3>
-          <p>{analysis}</p>
-        </div>
-      )}
-    </div>
-  );
+        {analysis && (
+          <div className="analysis-result">
+            <h3>Analysis and Recommendations</h3>
+            <p>{analysis}</p>
+          </div>
+        )}
+      </main>
+    );
 };
 
 export default Governance;
