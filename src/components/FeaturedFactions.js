@@ -22,11 +22,17 @@ const FeaturedFactions = () => {
       image: '/images/ai-architect.webp',
       link: '/ai-architect'
     },
-    { 
-      name: 'IoT Innovator', 
+    {
+      name: 'IoT Innovator',
       description: 'Pioneering innovations in Internet of Things (IoT) systems and enhancing IoT security.',
       image: '/images/iot-innovator.webp',
       link: '/iot-innovator'
+    },
+    {
+      name: 'Genesis Faction',
+      description: 'Establishing core principles and cross-domain collaboration for the metaverse.',
+      image: '/images/genesis-faction.webp',
+      link: '/genesis-faction'
     }
   ];
 
