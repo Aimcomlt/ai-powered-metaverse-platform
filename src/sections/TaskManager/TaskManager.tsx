@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import aiService from '../../services/aiService';
+import aiService from '../../services/ai';
 import { fetchTaskMetrics } from '../../store/taskSlice';
 import './TaskManager.css';
 

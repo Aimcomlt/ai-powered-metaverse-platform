@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import aiService from '../services/aiService';
+import aiService from '../services/ai';
 import { setRecommendations, setStatus } from '../store/aiSlice';
 
 interface RootState {

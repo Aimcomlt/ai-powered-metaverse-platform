@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import useMpns from './useMpns';
-import aiService from '../services/aiService';
+import aiService from '../services/ai';
 import { MpnsResolution, normalizeIpfsUrl } from '../services/mpns';
 
 interface RootState {
